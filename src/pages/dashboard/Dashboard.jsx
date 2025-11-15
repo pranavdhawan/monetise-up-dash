@@ -155,6 +155,19 @@ export default function Dashboard() {
             </div>
           </div>
 
+          {/* Mobile Date Filter - Top Position */}
+          <div className="lg:hidden border-b bg-card p-3 sm:p-4 shrink-0">
+            <details className="group">
+              <summary className="cursor-pointer text-sm sm:text-base font-semibold mb-2 flex items-center justify-between">
+                Date Range Filter
+                <span className="transform transition-transform group-open:rotate-180 text-xs">▼</span>
+              </summary>
+              <div className="pt-2">
+                <DateFilter onDateRangeChange={handleDateRangeChange} />
+              </div>
+            </details>
+          </div>
+
           {/* Content Area */}
           <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
             {/* Main View */}
@@ -216,24 +229,13 @@ export default function Dashboard() {
               )}
             </div>
 
-            {/* Right Sidebar - Date Filter */}
+            {/* Right Sidebar - Date Filter (Desktop) */}
             <aside className="hidden lg:block w-80 border-l bg-card overflow-auto shrink-0">
               <div className="p-4 xl:p-6">
                 <h2 className="text-lg font-semibold mb-4">Date Range</h2>
                 <DateFilter onDateRangeChange={handleDateRangeChange} />
               </div>
             </aside>
-          </div>
-
-          {/* Mobile Date Filter */}
-          <div className="lg:hidden border-t bg-card p-3 sm:p-4 shrink-0">
-            <details className="group">
-              <summary className="cursor-pointer text-sm sm:text-base font-semibold mb-2 flex items-center justify-between">
-                Date Range
-                <span className="transform transition-transform group-open:rotate-180 text-xs">▼</span>
-              </summary>
-              <DateFilter onDateRangeChange={handleDateRangeChange} />
-            </details>
           </div>
         </div>
       </div>
