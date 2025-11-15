@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import logo from "@/assets/logoo.png"
 
 export function DashboardHeader() {
   const { user } = useUser()
@@ -34,8 +35,8 @@ export function DashboardHeader() {
         {/* Logo and Brand */}
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
-            <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center shrink-0">
-              <span className="text-white font-bold text-base sm:text-xl">M</span>
+            <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg flex items-center justify-center shrink-0 overflow-hidden">
+              <img src={logo} alt="MonetiseUp Logo" className="h-full w-full object-contain" />
             </div>
             <div className="flex flex-col min-w-0">
               <h1 className="text-base sm:text-xl font-bold leading-none truncate">MonetiseUp</h1>

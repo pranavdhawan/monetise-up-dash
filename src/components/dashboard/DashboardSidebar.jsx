@@ -1,18 +1,40 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { BarChart3, ComputerIcon, Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { cn } from "@/lib/utils"
+import logo from "@/assets/logoo.png"
 
-export function DashboardSidebar({ sheets, selectedSheet, onSheetSelect, className }) {
+export function DashboardSidebar({ sheets, selectedSheet, onSheetSelect, className, renderMobileButton }) {
   const [isOpen, setIsOpen] = useState(false)
+
+  const MobileMenuButton = () => (
+    <Button
+      variant="outline"
+      size="icon"
+      onClick={() => setIsOpen(true)}
+      className="h-8 w-8 shrink-0 lg:hidden"
+      aria-label="Open menu"
+    >
+      <Menu className="h-4 w-4" />
+    </Button>
+  )
+
+  // Expose the button through a callback if provided
+  useEffect(() => {
+    if (renderMobileButton) {
+      renderMobileButton(MobileMenuButton)
+    }
+  }, [renderMobileButton])
 
   const SidebarContent = () => (
     <div className="flex h-full flex-col">
       <div className="border-b p-6">
         <div className="flex items-center gap-2">
-          <BarChart3 className="h-6 w-6 text-primary" />
+          <div className="h-8 w-8 rounded-lg flex items-center justify-center shrink-0 overflow-hidden">
+            <img src={logo} alt="MonetiseUp Logo" className="h-full w-full object-contain" />
+          </div>
           <h2 className="text-xl font-bold">Dashboard</h2>
         </div>
         <p className="text-sm text-muted-foreground mt-1">
@@ -58,17 +80,8 @@ export function DashboardSidebar({ sheets, selectedSheet, onSheetSelect, classNa
 
   return (
     <>
-      {/* Mobile Sidebar */}
+      {/* Mobile Sidebar Sheet */}
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
-        <SheetTrigger asChild className="md:hidden">
-          <Button
-            variant="outline"
-            size="icon"
-            className="fixed left-3 top-3 z-40 md:hidden h-8 w-8 sm:h-10 sm:w-10"
-          >
-            <Menu className="h-4 w-4 sm:h-5 sm:w-5" />
-          </Button>
-        </SheetTrigger>
         <SheetContent side="left" className="w-64 sm:w-72 p-0">
           <SidebarContent />
         </SheetContent>

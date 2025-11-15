@@ -19,6 +19,7 @@ export default function Dashboard() {
   const [dateRange, setDateRange] = useState(null) // Will be set by DateFilter default (yesterday)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [MobileMenuButton, setMobileMenuButton] = useState(null)
 
   const { isSignedIn, user, isLoaded } = useUser()
   const key = import.meta.env.VITE_CLIENT_KEY
@@ -117,6 +118,7 @@ export default function Dashboard() {
           sheets={sheetNames}
           selectedSheet={selectedSheet}
           onSheetSelect={handleSheetSelect}
+          renderMobileButton={(button) => setMobileMenuButton(() => button)}
         />
 
         {/* Main Content */}
@@ -158,8 +160,11 @@ export default function Dashboard() {
           {/* Mobile Date Filter - Top Position */}
           <div className="lg:hidden border-b bg-card p-3 sm:p-4 shrink-0">
             <details className="group">
-              <summary className="cursor-pointer text-sm sm:text-base font-semibold mb-2 flex items-center justify-between">
-                Date Range Filter
+              <summary className="cursor-pointer text-sm sm:text-base font-semibold mb-2 flex items-center justify-between list-none">
+                <div className="flex items-center gap-2">
+                  {MobileMenuButton && <MobileMenuButton />}
+                  <span>Date Range Filter</span>
+                </div>
                 <span className="transform transition-transform group-open:rotate-180 text-xs">▼</span>
               </summary>
               <div className="pt-2">
