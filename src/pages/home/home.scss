@@ -1,0 +1,48 @@
+.home {
+  display: flex;
+  background-image: url('../../assets/frame.png');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+
+  .homeContainer {
+    flex: 6;
+    padding: 20px;
+    overflow-y: auto;
+    
+    .viewToggle {
+      display: flex;
+      flex-direction: row;
+      gap: 10px;
+      margin-bottom: 20px;
+
+      button {
+        flex: 1;
+        padding: 10px;
+        background: #31a2c4;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: 500;
+
+        &:disabled {
+          background: #1e6b82;
+          cursor: not-allowed;
+        }
+
+        &:hover:not(:disabled) {
+          background: #2891b1;
+        }
+      }
+    }
+
+    .views {
+      width: 100%;
+      margin-top: 20px;
+    }
+  }
+}
+
