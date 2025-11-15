@@ -250,36 +250,36 @@ export function DataTable({ sheetID, websiteName, dateRange }) {
 
   return (
     <Card>
-      <CardHeader>
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            <CardTitle>{websiteName} - Detailed Data</CardTitle>
-            <CardDescription>
+      <CardHeader className="p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+          <div className="min-w-0">
+            <CardTitle className="text-lg sm:text-xl truncate">{websiteName} - Detailed Data</CardTitle>
+            <CardDescription className="text-xs sm:text-sm">
               View and export detailed analytics data
             </CardDescription>
           </div>
-          <div className="flex items-center gap-2">
-            <Badge variant="secondary">
+          <div className="flex items-center gap-2 shrink-0">
+            <Badge variant="secondary" className="text-xs">
               {filteredAndSortedData.length} rows
             </Badge>
           </div>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-3 sm:p-6">
         {/* Toolbar */}
-        <div className="flex flex-col md:flex-row gap-4 mb-6">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mb-4 sm:mb-6">
+          <div className="relative flex-1 min-w-0">
+            <Search className="absolute left-2 sm:left-3 top-1/2 h-3 w-3 sm:h-4 sm:w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder="Search all columns..."
+              placeholder="Search..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9"
+              className="pl-7 sm:pl-9 text-sm h-9"
             />
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 shrink-0 flex-wrap sm:flex-nowrap">
             <Select value={pageSize.toString()} onValueChange={(value) => setPageSize(Number(value))}>
-              <SelectTrigger className="w-[120px]">
+              <SelectTrigger className="w-[90px] sm:w-[110px] h-9 text-xs sm:text-sm">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -291,12 +291,12 @@ export function DataTable({ sheetID, websiteName, dateRange }) {
             </Select>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="gap-2">
-                  <Settings2 className="h-4 w-4" />
-                  Columns
+                <Button variant="outline" className="gap-1 sm:gap-2 h-9 px-2 sm:px-4 text-xs sm:text-sm">
+                  <Settings2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <span className="hidden sm:inline">Columns</span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-[200px]">
+              <DropdownMenuContent align="end" className="w-[180px] sm:w-[200px]">
                 {columns.map((column) => (
                   <DropdownMenuCheckboxItem
                     key={column}
@@ -304,32 +304,33 @@ export function DataTable({ sheetID, websiteName, dateRange }) {
                     onCheckedChange={(checked) =>
                       setColumnVisibility((prev) => ({ ...prev, [column]: checked }))
                     }
+                    className="text-xs sm:text-sm"
                   >
                     {column}
                   </DropdownMenuCheckboxItem>
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button onClick={exportToCSV} className="gap-2">
-              <Download className="h-4 w-4" />
-              Export CSV
+            <Button onClick={exportToCSV} className="gap-1 sm:gap-2 h-9 px-2 sm:px-4 text-xs sm:text-sm">
+              <Download className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">Export</span>
             </Button>
           </div>
         </div>
 
         {/* Table */}
-        <div className="rounded-md border">
+        <div className="rounded-md border overflow-auto">
           <Table>
             <TableHeader>
               <TableRow>
                 {visibleColumns.map((column) => (
-                  <TableHead key={column}>
+                  <TableHead key={column} className="whitespace-nowrap">
                     <Button
                       variant="ghost"
                       onClick={() => handleSort(column)}
-                      className="hover:bg-transparent font-semibold"
+                      className="hover:bg-transparent font-semibold text-xs sm:text-sm h-8 sm:h-auto px-2 sm:px-4"
                     >
-                      {column}
+                      <span className="truncate">{column}</span>
                       {getSortIcon(column)}
                     </Button>
                   </TableHead>
@@ -339,15 +340,15 @@ export function DataTable({ sheetID, websiteName, dateRange }) {
             <TableBody>
               {paginatedData.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={visibleColumns.length} className="text-center py-8">
-                    <p className="text-muted-foreground">No data available</p>
+                  <TableCell colSpan={visibleColumns.length} className="text-center py-6 sm:py-8">
+                    <p className="text-xs sm:text-sm text-muted-foreground">No data available</p>
                   </TableCell>
                 </TableRow>
               ) : (
                 paginatedData.map((row, index) => (
                   <TableRow key={index}>
                     {visibleColumns.map((column) => (
-                      <TableCell key={column}>
+                      <TableCell key={column} className="text-xs sm:text-sm whitespace-nowrap px-2 sm:px-4 py-2 sm:py-3">
                         {formatCellValue(row[column], column)}
                       </TableCell>
                     ))}
@@ -360,31 +361,33 @@ export function DataTable({ sheetID, websiteName, dateRange }) {
 
         {/* Pagination */}
         {filteredAndSortedData.length > 0 && (
-          <div className="flex items-center justify-between mt-4">
-            <div className="text-sm text-muted-foreground">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-3 sm:mt-4 gap-3">
+            <div className="text-xs sm:text-sm text-muted-foreground">
               Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, filteredAndSortedData.length)} of {filteredAndSortedData.length} rows
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                 disabled={currentPage === 1}
+                className="h-8 px-2 sm:px-3 text-xs"
               >
-                <ChevronLeft className="h-4 w-4" />
-                Previous
+                <ChevronLeft className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">Previous</span>
               </Button>
-              <div className="text-sm">
-                Page {currentPage} of {totalPages}
+              <div className="text-xs sm:text-sm px-2">
+                {currentPage} / {totalPages}
               </div>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                 disabled={currentPage === totalPages}
+                className="h-8 px-2 sm:px-3 text-xs"
               >
-                Next
-                <ChevronRight className="h-4 w-4" />
+                <span className="hidden sm:inline">Next</span>
+                <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
               </Button>
             </div>
           </div>

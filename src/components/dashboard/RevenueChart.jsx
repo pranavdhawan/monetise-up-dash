@@ -231,21 +231,21 @@ export function RevenueChart({ sheetID, websiteName, dateRange }) {
           Complete performance metrics overview
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-4 sm:space-y-6">
         {/* Stats Summary - Always showing YESTERDAY's data */}
         {yesterdayStats && (
           <div className="space-y-2">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <h3 className="text-sm font-semibold">Yesterday's Performance</h3>
-              <Badge variant="secondary">
+              <Badge variant="secondary" className="w-fit">
                 {new Date(Date.now() - 86400000).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
               </Badge>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
               {[...metrics.revenue, ...metrics.volumes, ...metrics.rates].slice(0, 8).map((metric, idx) => (
-                <div key={metric} className="rounded-lg bg-muted p-4">
-                  <p className="text-sm font-medium text-muted-foreground truncate">{metric}</p>
-                  <p className="text-2xl font-bold truncate" style={{ color: colors[idx % colors.length] }}>
+                <div key={metric} className="rounded-lg bg-muted p-3 sm:p-4">
+                  <p className="text-xs sm:text-sm font-medium text-muted-foreground truncate">{metric}</p>
+                  <p className="text-lg sm:text-2xl font-bold truncate" style={{ color: colors[idx % colors.length] }}>
                     {metrics.rates.includes(metric) || metrics.revenue.includes(metric)
                       ? `$${yesterdayStats[metric].toFixed(2)}`
                       : yesterdayStats[metric].toLocaleString()}
@@ -266,16 +266,17 @@ export function RevenueChart({ sheetID, websiteName, dateRange }) {
         {metrics.revenue.length > 0 && (
           <div>
             <h3 className="text-sm font-semibold mb-3">Revenue</h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={filteredData} margin={{ top: 20, right: 30, left: 60, bottom: 60 }}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis
-                  dataKey="Date"
-                  angle={-45}
-                  textAnchor="end"
-                  height={80}
-                  tick={{ fill: "hsl(var(--foreground))", fontSize: 11 }}
-                />
+            <div className="w-full overflow-x-auto">
+              <ResponsiveContainer width="100%" height={300} minWidth={300}>
+                <BarChart data={filteredData} margin={{ top: 20, right: 10, left: 60, bottom: 60 }}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis
+                    dataKey="Date"
+                    angle={-45}
+                    textAnchor="end"
+                    height={80}
+                    tick={{ fill: "hsl(var(--foreground))", fontSize: 10 }}
+                  />
                 <YAxis
                   tick={{ fill: "hsl(var(--foreground))" }}
                   tickFormatter={(value) => `$${value}`}
@@ -293,7 +294,8 @@ export function RevenueChart({ sheetID, websiteName, dateRange }) {
                   />
                 ))}
               </BarChart>
-            </ResponsiveContainer>
+              </ResponsiveContainer>
+            </div>
           </div>
         )}
 
@@ -301,8 +303,9 @@ export function RevenueChart({ sheetID, websiteName, dateRange }) {
         {metrics.rates.length > 0 && (
           <div>
             <h3 className="text-sm font-semibold mb-3">Rate Metrics</h3>
-            <ResponsiveContainer width="100%" height={250}>
-              <LineChart data={filteredData} margin={{ top: 20, right: 30, left: 60, bottom: 60 }}>
+            <div className="w-full overflow-x-auto">
+              <ResponsiveContainer width="100%" height={250} minWidth={300}>
+                <LineChart data={filteredData} margin={{ top: 20, right: 10, left: 60, bottom: 60 }}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                 <XAxis
                   dataKey="Date"
@@ -330,7 +333,8 @@ export function RevenueChart({ sheetID, websiteName, dateRange }) {
                   />
                 ))}
               </LineChart>
-            </ResponsiveContainer>
+              </ResponsiveContainer>
+            </div>
           </div>
         )}
 
@@ -338,8 +342,9 @@ export function RevenueChart({ sheetID, websiteName, dateRange }) {
         {metrics.volumes.length > 0 && (
           <div>
             <h3 className="text-sm font-semibold mb-3">Volume Metrics</h3>
-            <ResponsiveContainer width="100%" height={250}>
-              <AreaChart data={filteredData} margin={{ top: 20, right: 30, left: 70, bottom: 60 }}>
+            <div className="w-full overflow-x-auto">
+              <ResponsiveContainer width="100%" height={250} minWidth={300}>
+                <AreaChart data={filteredData} margin={{ top: 20, right: 10, left: 70, bottom: 60 }}>
                 <defs>
                   {metrics.volumes.map((metric, idx) => (
                     <linearGradient key={`gradient-${metric}`} id={`color-${metric}`} x1="0" y1="0" x2="0" y2="1">
@@ -373,9 +378,10 @@ export function RevenueChart({ sheetID, websiteName, dateRange }) {
                     fill={`url(#color-${metric})`}
                     name={metric}
                   />
-                ))}
-              </AreaChart>
-            </ResponsiveContainer>
+                  ))}
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
           </div>
         )}
 
@@ -383,8 +389,9 @@ export function RevenueChart({ sheetID, websiteName, dateRange }) {
         {metrics.others.length > 0 && (
           <div>
             <h3 className="text-sm font-semibold mb-3">Other Metrics</h3>
-            <ResponsiveContainer width="100%" height={250}>
-              <LineChart data={filteredData} margin={{ top: 20, right: 30, left: 60, bottom: 60 }}>
+            <div className="w-full overflow-x-auto">
+              <ResponsiveContainer width="100%" height={250} minWidth={300}>
+                <LineChart data={filteredData} margin={{ top: 20, right: 10, left: 60, bottom: 60 }}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                 <XAxis
                   dataKey="Date"
@@ -409,7 +416,8 @@ export function RevenueChart({ sheetID, websiteName, dateRange }) {
                   />
                 ))}
               </LineChart>
-            </ResponsiveContainer>
+              </ResponsiveContainer>
+            </div>
           </div>
         )}
       </CardContent>

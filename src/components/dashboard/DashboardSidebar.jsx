@@ -64,12 +64,12 @@ export function DashboardSidebar({ sheets, selectedSheet, onSheetSelect, classNa
           <Button
             variant="outline"
             size="icon"
-            className="fixed left-4 top-4 z-40 md:hidden"
+            className="fixed left-3 top-3 z-40 md:hidden h-8 w-8 sm:h-10 sm:w-10"
           >
-            <Menu className="h-5 w-5" />
+            <Menu className="h-4 w-4 sm:h-5 sm:w-5" />
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="w-64 p-0">
+        <SheetContent side="left" className="w-64 sm:w-72 p-0">
           <SidebarContent />
         </SheetContent>
       </Sheet>

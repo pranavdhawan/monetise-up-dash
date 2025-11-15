@@ -98,16 +98,16 @@ export function DateFilter({ onDateRangeChange }) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 sm:space-y-4">
       <div className="flex flex-col gap-2">
-        <h3 className="text-sm font-semibold">Quick Select</h3>
-        <div className="grid grid-cols-2 gap-2 lg:grid-cols-1">
+        <h3 className="text-xs sm:text-sm font-semibold">Quick Select</h3>
+        <div className="grid grid-cols-2 gap-1.5 sm:gap-2 lg:grid-cols-1">
           {presets.map((preset) => (
             <Button
               key={preset.value}
               variant={selectedPreset === preset.value ? "default" : "outline"}
               size="sm"
-              className="justify-start"
+              className="justify-start text-xs sm:text-sm h-8 sm:h-9"
               onClick={() => handlePresetClick(preset)}
             >
               {preset.label}
@@ -117,17 +117,17 @@ export function DateFilter({ onDateRangeChange }) {
       </div>
 
       <div className="space-y-2">
-        <h3 className="text-sm font-semibold">Custom Range</h3>
+        <h3 className="text-xs sm:text-sm font-semibold">Custom Range</h3>
         <Popover>
           <PopoverTrigger asChild>
             <Button
               variant="outline"
               className={cn(
-                "w-full justify-start text-left font-normal",
+                "w-full justify-start text-left font-normal text-xs sm:text-sm h-9",
                 !dateRange && "text-muted-foreground"
               )}
             >
-              <CalendarIcon className="mr-2 h-4 w-4" />
+              <CalendarIcon className="mr-1.5 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
               {dateRange?.from ? (
                 dateRange.to ? (
                   <>
@@ -148,7 +148,7 @@ export function DateFilter({ onDateRangeChange }) {
               defaultMonth={dateRange?.from}
               selected={dateRange}
               onSelect={handleCalendarSelect}
-              numberOfMonths={2}
+              numberOfMonths={window.innerWidth >= 640 ? 2 : 1}
               disabled={(date) => date > new Date()}
             />
           </PopoverContent>
@@ -159,7 +159,7 @@ export function DateFilter({ onDateRangeChange }) {
             variant="ghost"
             size="sm"
             onClick={handleClearDates}
-            className="w-full"
+            className="w-full text-xs sm:text-sm h-8"
           >
             Clear Dates
           </Button>
@@ -167,24 +167,24 @@ export function DateFilter({ onDateRangeChange }) {
       </div>
 
       {dateRange?.from ? (
-        <div className="rounded-lg bg-muted p-3 text-sm">
-          <p className="font-medium">
+        <div className="rounded-lg bg-muted p-2.5 sm:p-3 text-xs sm:text-sm">
+          <p className="font-medium text-xs sm:text-sm">
             {selectedPreset === "yesterday" ? "Yesterday" : "Selected Range"}
           </p>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground text-[10px] sm:text-xs">
             {format(dateRange.from, "MMM dd, yyyy")}
             {dateRange.to && format(dateRange.from, "MMM dd, yyyy") !== format(dateRange.to, "MMM dd, yyyy") && (
               <> to {format(dateRange.to, "MMM dd, yyyy")}</>
             )}
           </p>
-          <p className="mt-1 text-xs text-muted-foreground">
+          <p className="mt-1 text-[10px] sm:text-xs text-muted-foreground">
             {Math.ceil((dateRange.to - dateRange.from) / (1000 * 60 * 60 * 24)) + 1} days
           </p>
         </div>
       ) : (
-        <div className="rounded-lg bg-muted p-3 text-sm">
-          <p className="font-medium">All Data</p>
-          <p className="text-muted-foreground">
+        <div className="rounded-lg bg-muted p-2.5 sm:p-3 text-xs sm:text-sm">
+          <p className="font-medium text-xs sm:text-sm">All Data</p>
+          <p className="text-muted-foreground text-[10px] sm:text-xs">
             Showing all available data
           </p>
         </div>

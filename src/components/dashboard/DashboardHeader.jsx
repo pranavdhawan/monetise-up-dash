@@ -30,33 +30,33 @@ export function DashboardHeader() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex h-16 items-center justify-between px-4 md:px-6">
+      <div className="flex h-14 sm:h-16 items-center justify-between px-3 sm:px-4 md:px-6">
         {/* Logo and Brand */}
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center">
-              <span className="text-white font-bold text-xl">M</span>
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+          <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+            <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center shrink-0">
+              <span className="text-white font-bold text-base sm:text-xl">M</span>
             </div>
-            <div className="flex flex-col">
-              <h1 className="text-xl font-bold leading-none">MonetiseUp</h1>
-              <p className="text-xs text-muted-foreground">Analytics Dashboard</p>
+            <div className="flex flex-col min-w-0">
+              <h1 className="text-base sm:text-xl font-bold leading-none truncate">MonetiseUp</h1>
+              <p className="text-[10px] sm:text-xs text-muted-foreground truncate hidden xs:block">Analytics Dashboard</p>
             </div>
           </div>
         </div>
 
         {/* User Menu */}
-        <div className="flex items-center gap-4">
-          <div className="hidden md:flex items-center gap-2 text-sm">
-            <User className="h-4 w-4 text-muted-foreground" />
-            <span className="text-muted-foreground">{user?.emailAddresses?.[0]?.emailAddress}</span>
+        <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+          <div className="hidden lg:flex items-center gap-2 text-sm max-w-[200px]">
+            <User className="h-4 w-4 text-muted-foreground shrink-0" />
+            <span className="text-muted-foreground truncate">{user?.emailAddresses?.[0]?.emailAddress}</span>
           </div>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                <Avatar className="h-10 w-10">
+              <Button variant="ghost" className="relative h-8 w-8 sm:h-10 sm:w-10 rounded-full p-0">
+                <Avatar className="h-8 w-8 sm:h-10 sm:w-10">
                   <AvatarImage src={user?.imageUrl} alt={user?.emailAddresses?.[0]?.emailAddress} />
-                  <AvatarFallback className="bg-primary text-primary-foreground">
+                  <AvatarFallback className="bg-primary text-primary-foreground text-xs sm:text-sm">
                     {getInitials(user?.emailAddresses?.[0]?.emailAddress)}
                   </AvatarFallback>
                 </Avatar>

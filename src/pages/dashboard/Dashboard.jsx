@@ -111,7 +111,7 @@ export default function Dashboard() {
       <DashboardHeader />
 
       {/* Main Layout */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden relative">
         {/* Left Sidebar */}
         <DashboardSidebar
           sheets={sheetNames}
@@ -120,19 +120,19 @@ export default function Dashboard() {
         />
 
         {/* Main Content */}
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 flex flex-col overflow-hidden w-full">
           {/* Sub-Header */}
           <div className="border-b bg-card">
-            <div className="flex items-center justify-between p-4 md:p-6">
-              <div>
-                <h2 className="text-xl md:text-2xl font-bold">Analytics Dashboard</h2>
-                <p className="text-sm text-muted-foreground mt-1">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 md:p-6 gap-4">
+              <div className="min-w-0">
+                <h2 className="text-lg sm:text-xl md:text-2xl font-bold truncate">Analytics Dashboard</h2>
+                <p className="text-xs sm:text-sm text-muted-foreground mt-1 truncate">
                   {selectedSheet || "Select a sheet to view data"}
                 </p>
               </div>
               
-              {/* View Toggle */}
-              <div className="hidden md:flex items-center gap-2 rounded-lg border p-1">
+              {/* View Toggle - Desktop */}
+              <div className="hidden sm:flex items-center gap-2 rounded-lg border p-1 shrink-0">
                 <Button
                   variant={view === "chart" ? "secondary" : "ghost"}
                   size="sm"
@@ -156,9 +156,9 @@ export default function Dashboard() {
           </div>
 
           {/* Content Area */}
-          <div className="flex-1 flex overflow-hidden">
+          <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
             {/* Main View */}
-            <div className="flex-1 overflow-auto p-4 md:p-6">
+            <div className="flex-1 overflow-auto p-3 sm:p-4 md:p-6">
               {!selectedSheet ? (
                 <Card>
                   <CardContent className="flex items-center justify-center min-h-[400px]">
@@ -172,14 +172,14 @@ export default function Dashboard() {
                   </CardContent>
                 </Card>
               ) : (
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6">
                   {/* Mobile View Toggle */}
-                  <div className="md:hidden flex gap-2">
+                  <div className="sm:hidden flex gap-2">
                     <Button
                       variant={view === "chart" ? "default" : "outline"}
                       size="sm"
                       onClick={() => setView("chart")}
-                      className="flex-1 gap-2"
+                      className="flex-1 gap-2 text-xs"
                     >
                       <BarChart3 className="h-4 w-4" />
                       Chart
@@ -188,7 +188,7 @@ export default function Dashboard() {
                       variant={view === "table" ? "default" : "outline"}
                       size="sm"
                       onClick={() => setView("table")}
-                      className="flex-1 gap-2"
+                      className="flex-1 gap-2 text-xs"
                     >
                       <Table2 className="h-4 w-4" />
                       Table
@@ -217,8 +217,8 @@ export default function Dashboard() {
             </div>
 
             {/* Right Sidebar - Date Filter */}
-            <aside className="hidden lg:block w-80 border-l bg-card overflow-auto">
-              <div className="p-6">
+            <aside className="hidden lg:block w-80 border-l bg-card overflow-auto shrink-0">
+              <div className="p-4 xl:p-6">
                 <h2 className="text-lg font-semibold mb-4">Date Range</h2>
                 <DateFilter onDateRangeChange={handleDateRangeChange} />
               </div>
@@ -226,11 +226,11 @@ export default function Dashboard() {
           </div>
 
           {/* Mobile Date Filter */}
-          <div className="lg:hidden border-t bg-card p-4">
+          <div className="lg:hidden border-t bg-card p-3 sm:p-4 shrink-0">
             <details className="group">
-              <summary className="cursor-pointer font-semibold mb-2 flex items-center justify-between">
+              <summary className="cursor-pointer text-sm sm:text-base font-semibold mb-2 flex items-center justify-between">
                 Date Range
-                <span className="transform transition-transform group-open:rotate-180">▼</span>
+                <span className="transform transition-transform group-open:rotate-180 text-xs">▼</span>
               </summary>
               <DateFilter onDateRangeChange={handleDateRangeChange} />
             </details>
