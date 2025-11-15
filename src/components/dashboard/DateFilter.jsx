@@ -1,14 +1,20 @@
 import { useState, useEffect } from "react"
 import { CalendarIcon } from "lucide-react"
-import { format, subDays, subMonths, startOfYear } from "date-fns"
+import { format, subDays, subMonths, startOfYear, startOfDay, endOfDay } from "date-fns"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
 
 export function DateFilter({ onDateRangeChange }) {
-  const [dateRange, setDateRange] = useState(null)
-  const [selectedPreset, setSelectedPreset] = useState("all")
+  // Initialize with yesterday's date range
+  const getYesterdayRange = () => ({
+    from: startOfDay(subDays(new Date(), 1)),
+    to: endOfDay(subDays(new Date(), 1))
+  })
+  
+  const [dateRange, setDateRange] = useState(getYesterdayRange())
+  const [selectedPreset, setSelectedPreset] = useState("yesterday")
 
   useEffect(() => {
     onDateRangeChange(dateRange)
@@ -19,6 +25,14 @@ export function DateFilter({ onDateRangeChange }) {
       label: "All Data",
       value: "all",
       getRange: () => null
+    },
+    {
+      label: "Yesterday",
+      value: "yesterday",
+      getRange: () => ({
+        from: startOfDay(subDays(new Date(), 1)),
+        to: endOfDay(subDays(new Date(), 1))
+      })
     },
     {
       label: "Last 7 days",
@@ -154,10 +168,14 @@ export function DateFilter({ onDateRangeChange }) {
 
       {dateRange?.from ? (
         <div className="rounded-lg bg-muted p-3 text-sm">
-          <p className="font-medium">Selected Range</p>
+          <p className="font-medium">
+            {selectedPreset === "yesterday" ? "Yesterday" : "Selected Range"}
+          </p>
           <p className="text-muted-foreground">
-            {format(dateRange.from, "MMM dd, yyyy")} to{" "}
-            {format(dateRange.to, "MMM dd, yyyy")}
+            {format(dateRange.from, "MMM dd, yyyy")}
+            {dateRange.to && format(dateRange.from, "MMM dd, yyyy") !== format(dateRange.to, "MMM dd, yyyy") && (
+              <> to {format(dateRange.to, "MMM dd, yyyy")}</>
+            )}
           </p>
           <p className="mt-1 text-xs text-muted-foreground">
             {Math.ceil((dateRange.to - dateRange.from) / (1000 * 60 * 60 * 24)) + 1} days

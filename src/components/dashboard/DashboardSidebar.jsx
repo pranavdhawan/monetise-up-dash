@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { BarChart3, FileSpreadsheet, Menu } from "lucide-react"
+import { BarChart3, ComputerIcon, Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
@@ -22,13 +22,13 @@ export function DashboardSidebar({ sheets, selectedSheet, onSheetSelect, classNa
       
       <div className="p-4">
         <h3 className="mb-3 px-2 text-sm font-semibold text-muted-foreground">
-          SHEETS
+          Websites
         </h3>
         <ScrollArea className="h-[calc(100vh-200px)]">
           <div className="space-y-1">
             {sheets.length === 0 ? (
               <div className="px-2 py-4 text-sm text-muted-foreground">
-                No sheets available
+                No websites available
               </div>
             ) : (
               sheets.map((sheet) => (
@@ -44,7 +44,8 @@ export function DashboardSidebar({ sheets, selectedSheet, onSheetSelect, classNa
                     setIsOpen(false)
                   }}
                 >
-                  <FileSpreadsheet className="mr-2 h-4 w-4" />
+                  {/* <ComputerIcon className="mr-2 h-4 w-4" /> */}
+                  <span className="text-1xl font-bold">🖥️</span>
                   <span className="truncate">{sheet}</span>
                 </Button>
               ))

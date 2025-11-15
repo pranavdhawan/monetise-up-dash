@@ -15,6 +15,7 @@ import {
 } from "recharts"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Badge } from "@/components/ui/badge"
 
 const convertToNumber = (value) => {
   if (!value) return 0
@@ -152,26 +153,31 @@ export function RevenueChart({ sheetID, websiteName, dateRange }) {
     })
   }, [chartData, dateRange])
 
-  const stats = useMemo(() => {
-    if (filteredData.length === 0) return null
+  // Stats showing ONLY yesterday's data
+  const yesterdayStats = useMemo(() => {
+    if (chartData.length === 0) return null
+
+    // Get yesterday's date in the format used in the data (DD/MM/YYYY)
+    const yesterday = new Date()
+    yesterday.setDate(yesterday.getDate() - 1)
+    const yesterdayStr = yesterday.toLocaleDateString('en-GB') // DD/MM/YYYY format
+
+    // Find yesterday's data row
+    const yesterdayData = chartData.find(item => item.Date === yesterdayStr)
+    
+    if (!yesterdayData) return null
 
     const result = {}
     
-    // Calculate stats for all metrics
+    // Get all metrics
     const allMetrics = [...metrics.revenue, ...metrics.rates, ...metrics.volumes, ...metrics.others]
     
     allMetrics.forEach(metric => {
-      const values = filteredData.map(item => item[metric] || 0).filter(v => v > 0)
-      const total = values.reduce((sum, val) => sum + val, 0)
-      const avg = values.length > 0 ? total / values.length : 0
-      
-      // Use average for rates, total for everything else
-      const isRate = metrics.rates.includes(metric)
-      result[metric] = isRate ? avg : total
+      result[metric] = yesterdayData[metric] || 0
     })
 
     return result
-  }, [filteredData, metrics])
+  }, [chartData, metrics])
 
   const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316']
 
@@ -226,22 +232,33 @@ export function RevenueChart({ sheetID, websiteName, dateRange }) {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Stats Summary */}
-        {stats && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[...metrics.revenue, ...metrics.volumes, ...metrics.rates].slice(0, 8).map((metric, idx) => (
-              <div key={metric} className="rounded-lg bg-muted p-4">
-                <p className="text-sm font-medium text-muted-foreground truncate">{metric}</p>
-                <p className="text-2xl font-bold truncate" style={{ color: colors[idx % colors.length] }}>
-                  {metrics.rates.includes(metric) || metrics.revenue.includes(metric)
-                    ? `$${stats[metric].toFixed(2)}`
-                    : stats[metric].toLocaleString()}
-                </p>
-                {metrics.rates.includes(metric) && (
-                  <p className="text-xs text-muted-foreground">Average</p>
-                )}
-              </div>
-            ))}
+        {/* Stats Summary - Always showing YESTERDAY's data */}
+        {yesterdayStats && (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold">Yesterday's Performance</h3>
+              <Badge variant="secondary">
+                {new Date(Date.now() - 86400000).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+              </Badge>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {[...metrics.revenue, ...metrics.volumes, ...metrics.rates].slice(0, 8).map((metric, idx) => (
+                <div key={metric} className="rounded-lg bg-muted p-4">
+                  <p className="text-sm font-medium text-muted-foreground truncate">{metric}</p>
+                  <p className="text-2xl font-bold truncate" style={{ color: colors[idx % colors.length] }}>
+                    {metrics.rates.includes(metric) || metrics.revenue.includes(metric)
+                      ? `$${yesterdayStats[metric].toFixed(2)}`
+                      : yesterdayStats[metric].toLocaleString()}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        
+        {!yesterdayStats && (
+          <div className="rounded-lg bg-muted p-4 text-center">
+            <p className="text-sm text-muted-foreground">No data available for yesterday</p>
           </div>
         )}
 
@@ -250,7 +267,7 @@ export function RevenueChart({ sheetID, websiteName, dateRange }) {
           <div>
             <h3 className="text-sm font-semibold mb-3">Revenue</h3>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={filteredData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
+              <BarChart data={filteredData} margin={{ top: 20, right: 30, left: 60, bottom: 60 }}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                 <XAxis
                   dataKey="Date"
@@ -285,7 +302,7 @@ export function RevenueChart({ sheetID, websiteName, dateRange }) {
           <div>
             <h3 className="text-sm font-semibold mb-3">Rate Metrics</h3>
             <ResponsiveContainer width="100%" height={250}>
-              <LineChart data={filteredData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
+              <LineChart data={filteredData} margin={{ top: 20, right: 30, left: 60, bottom: 60 }}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                 <XAxis
                   dataKey="Date"
@@ -322,7 +339,7 @@ export function RevenueChart({ sheetID, websiteName, dateRange }) {
           <div>
             <h3 className="text-sm font-semibold mb-3">Volume Metrics</h3>
             <ResponsiveContainer width="100%" height={250}>
-              <AreaChart data={filteredData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
+              <AreaChart data={filteredData} margin={{ top: 20, right: 30, left: 70, bottom: 60 }}>
                 <defs>
                   {metrics.volumes.map((metric, idx) => (
                     <linearGradient key={`gradient-${metric}`} id={`color-${metric}`} x1="0" y1="0" x2="0" y2="1">
@@ -367,7 +384,7 @@ export function RevenueChart({ sheetID, websiteName, dateRange }) {
           <div>
             <h3 className="text-sm font-semibold mb-3">Other Metrics</h3>
             <ResponsiveContainer width="100%" height={250}>
-              <LineChart data={filteredData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
+              <LineChart data={filteredData} margin={{ top: 20, right: 30, left: 60, bottom: 60 }}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                 <XAxis
                   dataKey="Date"

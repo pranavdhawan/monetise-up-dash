@@ -16,7 +16,7 @@ export default function Dashboard() {
   const [sheetID, setSheetID] = useState(null)
   const [selectedSheet, setSelectedSheet] = useState(null)
   const [view, setView] = useState("chart")
-  const [dateRange, setDateRange] = useState(null) // Default to null = all data
+  const [dateRange, setDateRange] = useState(null) // Will be set by DateFilter default (yesterday)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
