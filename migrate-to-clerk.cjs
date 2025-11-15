@@ -1,9 +1,17 @@
 // migrate-to-clerk.js
+require('dotenv').config();
 const axios = require('axios');
 const mongoose = require('mongoose');
 
-const CLERK_SECRET_KEY = 'sk_test_eJvZkci5WFoeyOOkmjTPosrFEAadtOcbYLaOHl9skJ';
-const MONGO_URI = 'mongodb+srv://pranav:applemango@cluster0.j7rrtrp.mongodb.net/';
+const CLERK_SECRET_KEY = process.env.CLERK_SECRET_KEY;
+const MONGO_URI = process.env.MONGO_URI;
+
+// Validate required environment variables
+if (!CLERK_SECRET_KEY || !MONGO_URI) {
+  console.error('❌ Missing required environment variables!');
+  console.error('Please ensure CLERK_SECRET_KEY and MONGO_URI are set in your .env file');
+  process.exit(1);
+}
 
 // Define the User model directly here (since we're in a different directory)
 const UserSchema = new mongoose.Schema(
