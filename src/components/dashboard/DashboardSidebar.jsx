@@ -32,9 +32,9 @@ export function DashboardSidebar({ sheets, selectedSheet, onSheetSelect, classNa
     <div className="flex h-full flex-col">
       <div className="border-b p-6">
         <div className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-lg flex items-center justify-center shrink-0 overflow-hidden">
+          {/* <div className="h-8 w-8 rounded-lg flex items-center justify-center shrink-0 overflow-hidden">
             <img src={logo} alt="MonetiseUp Logo" className="h-full w-full object-contain" />
-          </div>
+          </div> */}
           <h2 className="text-xl font-bold">Dashboard</h2>
         </div>
         <p className="text-sm text-muted-foreground mt-1">
