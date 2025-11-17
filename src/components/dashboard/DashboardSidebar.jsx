@@ -8,23 +8,43 @@ import logo from "@/assets/logoo.png"
 
 export function DashboardSidebar({ sheets, selectedSheet, onSheetSelect, className, renderMobileButton }) {
   const [isOpen, setIsOpen] = useState(false)
+  const [lastClickTime, setLastClickTime] = useState(0)
 
-  const handleOpenSheet = useCallback(() => {
-    setIsOpen(true)
-  }, [])
+  const handleOpenSheet = useCallback((e) => {
+    if (e) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+    // Prevent double-tap (debounce within 300ms)
+    const now = Date.now()
+    if (now - lastClickTime < 300) return
+    setLastClickTime(now)
+    
+    if (!isOpen) {
+      setIsOpen(true)
+    }
+  }, [isOpen, lastClickTime])
 
-  const MobileMenuButton = memo(() => (
-    <Button
-      variant="outline"
-      size="icon"
-      onClick={handleOpenSheet}
-      className="h-10 w-10 shrink-0 lg:hidden touch-manipulation pointer-events-auto relative z-50"
-      aria-label="Open menu"
-      type="button"
-    >
-      <Menu className="h-5 w-5" />
-    </Button>
-  ))
+  const MobileMenuButton = memo(() => {
+    const handleClick = (e) => {
+      e.preventDefault()
+      e.stopPropagation()
+      handleOpenSheet(e)
+    }
+    
+    return (
+      <Button
+        variant="outline"
+        size="icon"
+        onClick={handleClick}
+        className="h-10 w-10 shrink-0 lg:hidden touch-manipulation pointer-events-auto relative z-50"
+        aria-label="Open menu"
+        type="button"
+      >
+        <Menu className="h-5 w-5" />
+      </Button>
+    )
+  })
 
   MobileMenuButton.displayName = "MobileMenuButton"
 
@@ -60,24 +80,32 @@ export function DashboardSidebar({ sheets, selectedSheet, onSheetSelect, classNa
                 No websites available
               </div>
             ) : (
-              sheets.map((sheet) => (
-                <Button
-                  key={sheet}
-                  variant={selectedSheet === sheet ? "secondary" : "ghost"}
-                  className={cn(
-                    "w-full justify-start font-normal min-h-[44px] touch-manipulation",
-                    selectedSheet === sheet && "bg-secondary"
-                  )}
-                  onClick={() => {
+              sheets.map((sheet) => {
+                const handleSheetClick = (e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  if (selectedSheet !== sheet) {
                     onSheetSelect(sheet)
-                    setIsOpen(false)
-                  }}
-                >
-                  {/* <ComputerIcon className="mr-2 h-4 w-4" /> */}
-                  <span className="text-1xl font-bold">🖥️</span>
-                  <span className="truncate">{sheet}</span>
-                </Button>
-              ))
+                  }
+                  setIsOpen(false)
+                }
+                
+                return (
+                  <Button
+                    key={sheet}
+                    variant={selectedSheet === sheet ? "secondary" : "ghost"}
+                    className={cn(
+                      "w-full justify-start font-normal min-h-[44px] touch-manipulation",
+                      selectedSheet === sheet && "bg-secondary"
+                    )}
+                    onClick={handleSheetClick}
+                  >
+                    {/* <ComputerIcon className="mr-2 h-4 w-4" /> */}
+                    <span className="text-1xl font-bold">🖥️</span>
+                    <span className="truncate">{sheet}</span>
+                  </Button>
+                )
+              })
             )}
           </div>
         </ScrollArea>

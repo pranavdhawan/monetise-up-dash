@@ -77,30 +77,41 @@
     -webkit-user-select: none;
   }
   
-  /* Prevent double-tap zoom on buttons */
-  button, 
-  [role="button"],
-  .btn {
-    touch-action: manipulation;
-    pointer-events: auto;
-    cursor: pointer;
-  }
-  
-  /* Improve mobile scrolling and performance */
+  /* Prevent double-tap zoom and ensure single tap works */
   @media (max-width: 768px) {
+    button, 
+    [role="button"],
+    .btn,
+    [type="button"],
+    summary {
+      touch-action: manipulation;
+      pointer-events: auto;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+    }
+    
+    /* Prevent 300ms delay on touch */
     * {
       -webkit-overflow-scrolling: touch;
+      -webkit-tap-highlight-color: transparent;
     }
     
     /* Optimize rendering for large lists */
     details summary {
       pointer-events: auto;
       cursor: pointer;
+      touch-action: manipulation;
     }
     
     /* Ensure buttons are clickable even during heavy operations */
     button:not(:disabled) {
       will-change: transform;
+    }
+    
+    /* Prevent double-tap zoom on interactive elements */
+    a, button, input, select, textarea, [onclick], [role="button"] {
+      touch-action: manipulation;
     }
   }
 }

@@ -203,7 +203,11 @@ export default function Dashboard() {
                     <Button
                       variant={view === "chart" ? "default" : "outline"}
                       size="sm"
-                      onClick={() => setView("chart")}
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        setView("chart")
+                      }}
                       className="flex-1 gap-2 text-xs min-h-[44px] touch-manipulation"
                     >
                       <BarChart3 className="h-4 w-4" />
@@ -212,7 +216,11 @@ export default function Dashboard() {
                     <Button
                       variant={view === "table" ? "default" : "outline"}
                       size="sm"
-                      onClick={() => setView("table")}
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        setView("table")
+                      }}
                       className="flex-1 gap-2 text-xs min-h-[44px] touch-manipulation"
                     >
                       <Table2 className="h-4 w-4" />

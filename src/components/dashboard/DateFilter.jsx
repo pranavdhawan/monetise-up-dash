@@ -76,7 +76,17 @@ export function DateFilter({ onDateRangeChange }) {
     }
   ]
 
+  const [lastClickTime, setLastClickTime] = useState(0)
+  
   const handlePresetClick = (preset) => {
+    // Prevent double-trigger
+    if (selectedPreset === preset.value) return
+    
+    // Debounce rapid clicks (within 300ms)
+    const now = Date.now()
+    if (now - lastClickTime < 300) return
+    setLastClickTime(now)
+    
     // Immediate visual feedback
     setSelectedPreset(preset.value)
     // Defer heavy computation
@@ -112,7 +122,11 @@ export function DateFilter({ onDateRangeChange }) {
               variant={selectedPreset === preset.value ? "default" : "outline"}
               size="sm"
               className="justify-start text-xs sm:text-sm min-h-[44px] touch-manipulation"
-              onClick={() => handlePresetClick(preset)}
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                handlePresetClick(preset)
+              }}
             >
               {preset.label}
             </Button>
