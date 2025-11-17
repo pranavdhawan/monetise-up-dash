@@ -77,9 +77,13 @@ export function DateFilter({ onDateRangeChange }) {
   ]
 
   const handlePresetClick = (preset) => {
-    const range = preset.getRange()
-    setDateRange(range)
+    // Immediate visual feedback
     setSelectedPreset(preset.value)
+    // Defer heavy computation
+    requestAnimationFrame(() => {
+      const range = preset.getRange()
+      setDateRange(range)
+    })
   }
 
   const handleCalendarSelect = (range) => {

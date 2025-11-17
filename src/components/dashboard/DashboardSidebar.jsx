@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback, memo } from "react"
 import { BarChart3, ComputerIcon, Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -9,17 +9,24 @@ import logo from "@/assets/logoo.png"
 export function DashboardSidebar({ sheets, selectedSheet, onSheetSelect, className, renderMobileButton }) {
   const [isOpen, setIsOpen] = useState(false)
 
-  const MobileMenuButton = () => (
+  const handleOpenSheet = useCallback(() => {
+    setIsOpen(true)
+  }, [])
+
+  const MobileMenuButton = memo(() => (
     <Button
       variant="outline"
       size="icon"
-      onClick={() => setIsOpen(true)}
-      className="h-10 w-10 shrink-0 lg:hidden touch-manipulation"
+      onClick={handleOpenSheet}
+      className="h-10 w-10 shrink-0 lg:hidden touch-manipulation pointer-events-auto relative z-50"
       aria-label="Open menu"
+      type="button"
     >
       <Menu className="h-5 w-5" />
     </Button>
-  )
+  ))
+
+  MobileMenuButton.displayName = "MobileMenuButton"
 
   // Expose the button through a callback if provided
   useEffect(() => {

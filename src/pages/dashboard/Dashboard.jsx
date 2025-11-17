@@ -71,7 +71,10 @@ export default function Dashboard() {
   }, [sheetID, key])
 
   const handleDateRangeChange = useCallback((range) => {
-    setDateRange(range)
+    // Use setTimeout to defer state update and keep UI responsive
+    setTimeout(() => {
+      setDateRange(range)
+    }, 0)
   }, [])
 
   const handleSheetSelect = useCallback((sheet) => {
@@ -164,13 +167,13 @@ export default function Dashboard() {
           </div>
 
           {/* Mobile Date Filter - Top Position */}
-          <div className="lg:hidden border-b bg-card p-3 sm:p-4 shrink-0">
+          <div className="lg:hidden border-b bg-card p-3 sm:p-4 shrink-0 relative z-10">
             <details className="group">
-              <summary className="cursor-pointer text-sm sm:text-base font-semibold flex items-center justify-between list-none">
+              <summary className="cursor-pointer text-sm sm:text-base font-semibold flex items-center justify-between list-none touch-manipulation pointer-events-auto">
                 <span>Date Range</span>
                 <span className="transform transition-transform group-open:rotate-180 text-xs">▼</span>
               </summary>
-              <div className="pt-2">
+              <div className="pt-2 pointer-events-auto">
                 <DateFilter onDateRangeChange={handleDateRangeChange} />
               </div>
             </details>

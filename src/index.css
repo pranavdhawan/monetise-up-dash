@@ -82,12 +82,39 @@
   [role="button"],
   .btn {
     touch-action: manipulation;
+    pointer-events: auto;
+    cursor: pointer;
   }
   
-  /* Improve mobile scrolling */
+  /* Improve mobile scrolling and performance */
   @media (max-width: 768px) {
     * {
       -webkit-overflow-scrolling: touch;
     }
+    
+    /* Optimize rendering for large lists */
+    details summary {
+      pointer-events: auto;
+      cursor: pointer;
+    }
+    
+    /* Ensure buttons are clickable even during heavy operations */
+    button:not(:disabled) {
+      will-change: transform;
+    }
+  }
+}
+
+/* Performance optimizations for large datasets */
+@layer base {
+  /* Use GPU acceleration for transforms */
+  .transform {
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+  }
+  
+  /* Contain paint for better performance */
+  [data-radix-scroll-area-viewport] {
+    contain: layout style paint;
   }
 }
