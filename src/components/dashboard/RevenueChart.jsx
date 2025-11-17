@@ -144,14 +144,34 @@ export function RevenueChart({ sheetID, websiteName, dateRange }) {
     getData()
   }, [sheetID, websiteName, key])
 
-  const filteredData = useMemo(() => {
-    if (!dateRange?.from || !dateRange?.to) return chartData
-
-    return chartData.filter((item) => {
-      const itemDate = new Date(item.Date.split('/').reverse().join('/'))
-      return itemDate >= dateRange.from && itemDate <= dateRange.to
+  // Optimize date parsing - cache parsed dates
+  const chartDataWithParsedDates = useMemo(() => {
+    return chartData.map(item => {
+      if (!item.Date) return { ...item, parsedDate: null }
+      // Cache parsed date to avoid repeated parsing
+      const dateStr = item.Date.split('/').reverse().join('/')
+      return { ...item, parsedDate: new Date(dateStr) }
     })
-  }, [chartData, dateRange])
+  }, [chartData])
+
+  const filteredData = useMemo(() => {
+    if (!dateRange?.from || !dateRange?.to) return chartDataWithParsedDates
+
+    return chartDataWithParsedDates.filter((item) => {
+      if (!item.parsedDate) return false
+      return item.parsedDate >= dateRange.from && item.parsedDate <= dateRange.to
+    })
+  }, [chartDataWithParsedDates, dateRange])
+
+  // Sample data for mobile to improve performance (show max 50 points on mobile)
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
+  const displayData = useMemo(() => {
+    if (!isMobile || filteredData.length <= 50) return filteredData
+    
+    // Sample data: take every nth item to get ~50 points
+    const sampleRate = Math.ceil(filteredData.length / 50)
+    return filteredData.filter((_, index) => index % sampleRate === 0)
+  }, [filteredData, isMobile])
 
   // Stats showing ONLY yesterday's data
   const yesterdayStats = useMemo(() => {
@@ -243,7 +263,7 @@ export function RevenueChart({ sheetID, websiteName, dateRange }) {
             </div>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
               {[...metrics.revenue, ...metrics.volumes, ...metrics.rates].slice(0, 8).map((metric, idx) => (
-                <div key={metric} className="rounded-lg bg-muted p-3 sm:p-4">
+                <div key={metric} className="rounded-lg bg-muted p-3 sm:p-4 will-change-contents">
                   <p className="text-xs sm:text-sm font-medium text-muted-foreground truncate">{metric}</p>
                   <p className="text-lg sm:text-2xl font-bold truncate" style={{ color: colors[idx % colors.length] }}>
                     {metrics.rates.includes(metric) || metrics.revenue.includes(metric)
@@ -268,7 +288,7 @@ export function RevenueChart({ sheetID, websiteName, dateRange }) {
             <h3 className="text-sm font-semibold mb-3">Revenue</h3>
             <div className="w-full overflow-x-auto">
               <ResponsiveContainer width="100%" height={300} minWidth={300}>
-                <BarChart data={filteredData} margin={{ top: 20, right: 10, left: 60, bottom: 60 }}>
+                <BarChart data={displayData} margin={{ top: 20, right: 10, left: 60, bottom: 60 }}>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                   <XAxis
                     dataKey="Date"
@@ -305,7 +325,7 @@ export function RevenueChart({ sheetID, websiteName, dateRange }) {
             <h3 className="text-sm font-semibold mb-3">Rate Metrics</h3>
             <div className="w-full overflow-x-auto">
               <ResponsiveContainer width="100%" height={250} minWidth={300}>
-                <LineChart data={filteredData} margin={{ top: 20, right: 10, left: 60, bottom: 60 }}>
+                <LineChart data={displayData} margin={{ top: 20, right: 10, left: 60, bottom: 60 }}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                 <XAxis
                   dataKey="Date"
@@ -344,7 +364,7 @@ export function RevenueChart({ sheetID, websiteName, dateRange }) {
             <h3 className="text-sm font-semibold mb-3">Volume Metrics</h3>
             <div className="w-full overflow-x-auto">
               <ResponsiveContainer width="100%" height={250} minWidth={300}>
-                <AreaChart data={filteredData} margin={{ top: 20, right: 10, left: 70, bottom: 60 }}>
+                <AreaChart data={displayData} margin={{ top: 20, right: 10, left: 70, bottom: 60 }}>
                 <defs>
                   {metrics.volumes.map((metric, idx) => (
                     <linearGradient key={`gradient-${metric}`} id={`color-${metric}`} x1="0" y1="0" x2="0" y2="1">
@@ -391,7 +411,7 @@ export function RevenueChart({ sheetID, websiteName, dateRange }) {
             <h3 className="text-sm font-semibold mb-3">Other Metrics</h3>
             <div className="w-full overflow-x-auto">
               <ResponsiveContainer width="100%" height={250} minWidth={300}>
-                <LineChart data={filteredData} margin={{ top: 20, right: 10, left: 60, bottom: 60 }}>
+                <LineChart data={displayData} margin={{ top: 20, right: 10, left: 60, bottom: 60 }}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                 <XAxis
                   dataKey="Date"

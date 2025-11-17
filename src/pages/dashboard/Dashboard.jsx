@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useTransition } from "react"
 import { useUser } from "@clerk/clerk-react"
 import axios from "axios"
 import { BarChart3, Table2 } from "lucide-react"
@@ -20,6 +20,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [MobileMenuButton, setMobileMenuButton] = useState(null)
+  const [isPending, startTransition] = useTransition()
 
   const { isSignedIn, user, isLoaded } = useUser()
   const key = import.meta.env.VITE_CLIENT_KEY
@@ -71,10 +72,10 @@ export default function Dashboard() {
   }, [sheetID, key])
 
   const handleDateRangeChange = useCallback((range) => {
-    // Use setTimeout to defer state update and keep UI responsive
-    setTimeout(() => {
+    // Use React.startTransition for non-urgent updates
+    startTransition(() => {
       setDateRange(range)
-    }, 0)
+    })
   }, [])
 
   const handleSheetSelect = useCallback((sheet) => {

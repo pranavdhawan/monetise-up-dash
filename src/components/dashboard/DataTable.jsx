@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, useTransition } from "react"
 import { Download, Search, Settings2, ArrowUpDown, ArrowUp, ArrowDown, ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -40,10 +40,36 @@ export function DataTable({ sheetID, websiteName, dateRange }) {
   const [searchQuery, setSearchQuery] = useState("")
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" })
   const [columnVisibility, setColumnVisibility] = useState({})
+  // Smaller default page size on mobile for better performance
   const [currentPage, setCurrentPage] = useState(1)
-  const [pageSize, setPageSize] = useState(50)
+  const [pageSize, setPageSize] = useState(() => {
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      return 25
+    }
+    return 50
+  })
+  const [isPending, startTransition] = useTransition()
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("")
+  
+  // Cache parsed dates to avoid repeated parsing
+  const tableDataWithParsedDates = useMemo(() => {
+    return tableData.map(item => {
+      if (!item.Date) return { ...item, parsedDate: null }
+      const dateStr = item.Date.split('/').reverse().join('/')
+      return { ...item, parsedDate: new Date(dateStr) }
+    })
+  }, [tableData])
 
   const key = import.meta.env.VITE_CLIENT_KEY
+
+  // Debounce search query for better performance
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery)
+    }, 300) // 300ms debounce
+
+    return () => clearTimeout(timer)
+  }, [searchQuery])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -95,21 +121,21 @@ export function DataTable({ sheetID, websiteName, dateRange }) {
   }, [sheetID, websiteName, key])
 
   const filteredAndSortedData = useMemo(() => {
-    let data = [...tableData]
+    let data = [...tableDataWithParsedDates]
 
-    // Apply date range filter
+    // Apply date range filter (using cached parsed dates)
     if (dateRange?.from && dateRange?.to) {
       data = data.filter((item) => {
-        const itemDate = new Date(item.Date.split('/').reverse().join('/'))
-        return itemDate >= dateRange.from && itemDate <= dateRange.to
+        if (!item.parsedDate) return false
+        return item.parsedDate >= dateRange.from && item.parsedDate <= dateRange.to
       })
     }
 
-    // Apply search filter
-    if (searchQuery) {
+    // Apply search filter (using debounced query)
+    if (debouncedSearchQuery) {
       data = data.filter((row) =>
         Object.values(row).some((value) =>
-          value.toString().toLowerCase().includes(searchQuery.toLowerCase())
+          value.toString().toLowerCase().includes(debouncedSearchQuery.toLowerCase())
         )
       )
     }
@@ -137,7 +163,7 @@ export function DataTable({ sheetID, websiteName, dateRange }) {
     }
 
     return data
-  }, [tableData, dateRange, searchQuery, sortConfig])
+  }, [tableDataWithParsedDates, dateRange, debouncedSearchQuery, sortConfig])
 
   const paginatedData = useMemo(() => {
     const startIndex = (currentPage - 1) * pageSize
@@ -148,8 +174,10 @@ export function DataTable({ sheetID, websiteName, dateRange }) {
   const totalPages = Math.ceil(filteredAndSortedData.length / pageSize)
 
   useEffect(() => {
-    // Reset to page 1 when filters change
-    setCurrentPage(1)
+    // Reset to page 1 when filters change (non-blocking)
+    startTransition(() => {
+      setCurrentPage(1)
+    })
   }, [searchQuery, dateRange, sortConfig, pageSize])
 
   const columns = useMemo(() => {
