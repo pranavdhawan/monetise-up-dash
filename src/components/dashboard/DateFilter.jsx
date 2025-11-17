@@ -107,7 +107,7 @@ export function DateFilter({ onDateRangeChange }) {
               key={preset.value}
               variant={selectedPreset === preset.value ? "default" : "outline"}
               size="sm"
-              className="justify-start text-xs sm:text-sm h-8 sm:h-9"
+              className="justify-start text-xs sm:text-sm min-h-[44px] touch-manipulation"
               onClick={() => handlePresetClick(preset)}
             >
               {preset.label}
@@ -159,7 +159,7 @@ export function DateFilter({ onDateRangeChange }) {
             variant="ghost"
             size="sm"
             onClick={handleClearDates}
-            className="w-full text-xs sm:text-sm h-8"
+            className="w-full text-xs sm:text-sm min-h-[44px] touch-manipulation"
           >
             Clear Dates
           </Button>

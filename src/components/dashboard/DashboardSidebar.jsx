@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { BarChart3, ComputerIcon, Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetTitle, SheetDescription } from "@/components/ui/sheet"
 import { cn } from "@/lib/utils"
 import logo from "@/assets/logoo.png"
 
@@ -14,10 +14,10 @@ export function DashboardSidebar({ sheets, selectedSheet, onSheetSelect, classNa
       variant="outline"
       size="icon"
       onClick={() => setIsOpen(true)}
-      className="h-8 w-8 shrink-0 lg:hidden"
+      className="h-10 w-10 shrink-0 lg:hidden touch-manipulation"
       aria-label="Open menu"
     >
-      <Menu className="h-4 w-4" />
+      <Menu className="h-5 w-5" />
     </Button>
   )
 
@@ -58,7 +58,7 @@ export function DashboardSidebar({ sheets, selectedSheet, onSheetSelect, classNa
                   key={sheet}
                   variant={selectedSheet === sheet ? "secondary" : "ghost"}
                   className={cn(
-                    "w-full justify-start font-normal",
+                    "w-full justify-start font-normal min-h-[44px] touch-manipulation",
                     selectedSheet === sheet && "bg-secondary"
                   )}
                   onClick={() => {
@@ -83,6 +83,10 @@ export function DashboardSidebar({ sheets, selectedSheet, onSheetSelect, classNa
       {/* Mobile Sidebar Sheet */}
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetContent side="left" className="w-64 sm:w-72 p-0">
+          <SheetTitle className="sr-only">Website Selection Menu</SheetTitle>
+          <SheetDescription className="sr-only">
+            Select a website to view analytics data
+          </SheetDescription>
           <SidebarContent />
         </SheetContent>
       </Sheet>

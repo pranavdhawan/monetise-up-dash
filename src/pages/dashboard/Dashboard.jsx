@@ -126,11 +126,17 @@ export default function Dashboard() {
           {/* Sub-Header */}
           <div className="border-b bg-card">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 md:p-6 gap-4">
-              <div className="min-w-0">
-                <h2 className="text-lg sm:text-xl md:text-2xl font-bold truncate">Analytics Dashboard</h2>
-                <p className="text-xs sm:text-sm text-muted-foreground mt-1 truncate">
-                  {selectedSheet || "Select a sheet to view data"}
-                </p>
+              <div className="min-w-0 flex items-center gap-2">
+                {/* Mobile Menu Button */}
+                <div className="lg:hidden">
+                  {MobileMenuButton && <MobileMenuButton />}
+                </div>
+                <div className="min-w-0">
+                  <h2 className="text-lg sm:text-xl md:text-2xl font-bold truncate">Analytics Dashboard</h2>
+                  <p className="text-xs sm:text-sm text-muted-foreground mt-1 truncate">
+                    {selectedSheet || "Select a sheet to view data"}
+                  </p>
+                </div>
               </div>
               
               {/* View Toggle - Desktop */}
@@ -160,11 +166,8 @@ export default function Dashboard() {
           {/* Mobile Date Filter - Top Position */}
           <div className="lg:hidden border-b bg-card p-3 sm:p-4 shrink-0">
             <details className="group">
-              <summary className="cursor-pointer text-sm sm:text-base font-semibold mb-2 flex items-center justify-between list-none">
-                <div className="flex items-center gap-2">
-                  {MobileMenuButton && <MobileMenuButton />}
-                  <span>Date Range Filter</span>
-                </div>
+              <summary className="cursor-pointer text-sm sm:text-base font-semibold flex items-center justify-between list-none">
+                <span>Date Range</span>
                 <span className="transform transition-transform group-open:rotate-180 text-xs">▼</span>
               </summary>
               <div className="pt-2">
@@ -197,7 +200,7 @@ export default function Dashboard() {
                       variant={view === "chart" ? "default" : "outline"}
                       size="sm"
                       onClick={() => setView("chart")}
-                      className="flex-1 gap-2 text-xs"
+                      className="flex-1 gap-2 text-xs min-h-[44px] touch-manipulation"
                     >
                       <BarChart3 className="h-4 w-4" />
                       Chart
@@ -206,7 +209,7 @@ export default function Dashboard() {
                       variant={view === "table" ? "default" : "outline"}
                       size="sm"
                       onClick={() => setView("table")}
-                      className="flex-1 gap-2 text-xs"
+                      className="flex-1 gap-2 text-xs min-h-[44px] touch-manipulation"
                     >
                       <Table2 className="h-4 w-4" />
                       Table
