@@ -5,46 +5,31 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Sheet, SheetContent, SheetTitle, SheetDescription } from "@/components/ui/sheet"
 import { cn } from "@/lib/utils"
 import logo from "@/assets/logoo.png"
+import { useMobileClick } from "@/hooks/use-mobile-click"
 
 export function DashboardSidebar({ sheets, selectedSheet, onSheetSelect, className, renderMobileButton }) {
   const [isOpen, setIsOpen] = useState(false)
-  const [lastClickTime, setLastClickTime] = useState(0)
 
-  const handleOpenSheet = useCallback((e) => {
-    if (e) {
-      e.preventDefault()
-      e.stopPropagation()
-    }
-    // Prevent double-tap (debounce within 300ms)
-    const now = Date.now()
-    if (now - lastClickTime < 300) return
-    setLastClickTime(now)
-    
+  const handleOpenSheet = useCallback(() => {
     if (!isOpen) {
       setIsOpen(true)
     }
-  }, [isOpen, lastClickTime])
+  }, [isOpen])
+  
+  const handleOpenSheetClick = useMobileClick(handleOpenSheet, 300)
 
-  const MobileMenuButton = memo(() => {
-    const handleClick = (e) => {
-      e.preventDefault()
-      e.stopPropagation()
-      handleOpenSheet(e)
-    }
-    
-    return (
-      <Button
-        variant="outline"
-        size="icon"
-        onClick={handleClick}
-        className="h-10 w-10 shrink-0 lg:hidden touch-manipulation pointer-events-auto relative z-50"
-        aria-label="Open menu"
-        type="button"
-      >
-        <Menu className="h-5 w-5" />
-      </Button>
-    )
-  })
+  const MobileMenuButton = memo(() => (
+    <Button
+      variant="outline"
+      size="icon"
+      onClick={handleOpenSheetClick}
+      className="h-10 w-10 shrink-0 lg:hidden touch-manipulation pointer-events-auto relative z-50"
+      aria-label="Open menu"
+      type="button"
+    >
+      <Menu className="h-5 w-5" />
+    </Button>
+  ))
 
   MobileMenuButton.displayName = "MobileMenuButton"
 
@@ -82,8 +67,8 @@ export function DashboardSidebar({ sheets, selectedSheet, onSheetSelect, classNa
             ) : (
               sheets.map((sheet) => {
                 const handleSheetClick = (e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
+                  e?.preventDefault()
+                  e?.stopPropagation()
                   if (selectedSheet !== sheet) {
                     onSheetSelect(sheet)
                   }
