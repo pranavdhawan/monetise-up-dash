@@ -1,8 +1,25 @@
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useMemo } from "react"
 import { format, subDays, subMonths, startOfYear, startOfDay, endOfDay } from "date-fns"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
+import { useMobileClick } from "@/hooks/use-mobile-click"
+
+// Preset button component to properly use hooks
+function PresetButton({ preset, selectedPreset, onPresetClick }) {
+  const handleClick = useMobileClick(() => onPresetClick(preset), 300)
+  
+  return (
+    <Button
+      variant={selectedPreset === preset.value ? "default" : "outline"}
+      size="sm"
+      className="justify-start text-xs sm:text-sm min-h-[44px] touch-manipulation"
+      onClick={handleClick}
+    >
+      {preset.label}
+    </Button>
+  )
+}
 
 export function DateFilter({ onDateRangeChange }) {
   // Initialize with yesterday's date range
@@ -123,10 +140,12 @@ export function DateFilter({ onDateRangeChange }) {
     }
   }
 
-  const handleClearDates = () => {
+  const handleClearDates = useCallback(() => {
     setDateRange(null)
     setSelectedPreset("all")
-  }
+  }, [])
+  
+  const handleClearDatesClick = useMobileClick(handleClearDates, 300)
 
   // Format date for input (YYYY-MM-DD)
   const formatDateForInput = (date) => {
@@ -140,19 +159,12 @@ export function DateFilter({ onDateRangeChange }) {
         <h3 className="text-xs sm:text-sm font-semibold">Quick Select</h3>
         <div className="grid grid-cols-2 gap-1.5 sm:gap-2 lg:grid-cols-1">
           {presets.map((preset) => (
-            <Button
+            <PresetButton
               key={preset.value}
-              variant={selectedPreset === preset.value ? "default" : "outline"}
-              size="sm"
-              className="justify-start text-xs sm:text-sm min-h-[44px] touch-manipulation"
-              onClick={(e) => {
-                e?.preventDefault()
-                e?.stopPropagation()
-                handlePresetClick(preset)
-              }}
-            >
-              {preset.label}
-            </Button>
+              preset={preset}
+              selectedPreset={selectedPreset}
+              onPresetClick={handlePresetClick}
+            />
           ))}
         </div>
       </div>
@@ -193,7 +205,7 @@ export function DateFilter({ onDateRangeChange }) {
           <Button
             variant="ghost"
             size="sm"
-            onClick={handleClearDates}
+            onClick={handleClearDatesClick}
             className="w-full text-xs sm:text-sm min-h-[44px] touch-manipulation"
           >
             Clear Dates

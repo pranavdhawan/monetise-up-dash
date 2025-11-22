@@ -11,6 +11,8 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import logo from "@/assets/logoo.png"
+import { useMobileClick } from "@/hooks/use-mobile-click"
+import { useCallback } from "react"
 
 export function DashboardHeader() {
   const { user } = useUser()
@@ -25,9 +27,11 @@ export function DashboardHeader() {
     return email.substring(0, 2).toUpperCase()
   }
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     signOut()
-  }
+  }, [signOut])
+  
+  const handleLogoutClick = useMobileClick(handleLogout, 300)
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -75,7 +79,7 @@ export function DashboardHeader() {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive">
+              <DropdownMenuItem onClick={handleLogoutClick} className="cursor-pointer text-destructive touch-manipulation">
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Log out</span>
               </DropdownMenuItem>

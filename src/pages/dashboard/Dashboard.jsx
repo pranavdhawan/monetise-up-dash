@@ -157,8 +157,8 @@ export default function Dashboard() {
                 <Button
                   variant={view === "chart" ? "secondary" : "ghost"}
                   size="sm"
-                  onClick={() => setView("chart")}
-                  className="gap-2"
+                  onClick={handleSetViewChart}
+                  className="gap-2 touch-manipulation"
                 >
                   <BarChart3 className="h-4 w-4" />
                   Chart
@@ -166,8 +166,8 @@ export default function Dashboard() {
                 <Button
                   variant={view === "table" ? "secondary" : "ghost"}
                   size="sm"
-                  onClick={() => setView("table")}
-                  className="gap-2"
+                  onClick={handleSetViewTable}
+                  className="gap-2 touch-manipulation"
                 >
                   <Table2 className="h-4 w-4" />
                   Table

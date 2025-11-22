@@ -66,14 +66,14 @@ export function DashboardSidebar({ sheets, selectedSheet, onSheetSelect, classNa
               </div>
             ) : (
               sheets.map((sheet) => {
-                const handleSheetClick = (e) => {
-                  e?.preventDefault()
-                  e?.stopPropagation()
+                const handleSheetSelect = useCallback(() => {
                   if (selectedSheet !== sheet) {
                     onSheetSelect(sheet)
                   }
                   setIsOpen(false)
-                }
+                }, [sheet, selectedSheet, onSheetSelect])
+                
+                const handleSheetClick = useMobileClick(handleSheetSelect, 300)
                 
                 return (
                   <Button
