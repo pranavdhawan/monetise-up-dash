@@ -1,6 +1,23 @@
-import { useState, useEffect, useMemo, useTransition } from "react"
+import { useState, useEffect, useMemo, useTransition, useCallback } from "react"
+import { useMobileClick } from "@/hooks/use-mobile-click"
 import { Download, Search, Settings2, ArrowUpDown, ArrowUp, ArrowDown, ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
+
+// Sort button component to properly use hooks
+function SortButton({ column, handleSort, getSortIcon }) {
+  const sortHandlers = useMobileClick(() => handleSort(column))
+  
+  return (
+    <Button
+      variant="ghost"
+      {...sortHandlers}
+      className="hover:bg-transparent font-semibold text-xs sm:text-sm h-8 sm:h-auto px-2 sm:px-4 touch-manipulation"
+    >
+      <span className="truncate">{column}</span>
+      {getSortIcon(column)}
+    </Button>
+  )
+}
 import { Input } from "@/components/ui/input"
 import {
   Table,
@@ -228,9 +245,65 @@ export function DataTable({ sheetID, websiteName, dateRange }) {
     return Object.keys(tableData[0])
   }, [tableData])
 
+  // Initialize columnVisibility to show all columns by default
+  useEffect(() => {
+    if (columns.length > 0) {
+      const currentKeys = Object.keys(columnVisibility)
+      const columnKeys = columns.map(col => col)
+      
+      // Only initialize if columnVisibility is empty or missing columns
+      if (currentKeys.length === 0 || !columnKeys.every(col => currentKeys.includes(col))) {
+        const initialVisibility = {}
+        columns.forEach(col => {
+          // Preserve existing visibility if column already exists
+          initialVisibility[col] = columnVisibility[col] !== undefined ? columnVisibility[col] : true
+        })
+        setColumnVisibility(initialVisibility)
+      }
+    }
+  }, [columns]) // Remove columnVisibility from deps to avoid loop
+
   const visibleColumns = useMemo(() => {
-    return columns.filter(col => columnVisibility[col])
+    // If columnVisibility is empty or columns haven't been initialized, show all columns
+    if (columns.length === 0) return []
+    if (Object.keys(columnVisibility).length === 0) {
+      return columns
+    }
+    const visible = columns.filter(col => columnVisibility[col] !== false)
+    // Always return at least the columns if filter results in empty array
+    return visible.length > 0 ? visible : columns
   }, [columns, columnVisibility])
+  
+  const exportToCSV = useCallback(() => {
+    const headers = visibleColumns.join(",")
+    const rows = filteredAndSortedData.map((row) =>
+      visibleColumns.map((col) => `"${String(row[col] || '').replace(/"/g, '""')}"`).join(",")
+    )
+    const csv = [headers, ...rows].join("\n")
+
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
+    const link = document.createElement("a")
+    const url = URL.createObjectURL(blob)
+    link.setAttribute("href", url)
+    link.setAttribute("download", `${websiteName}_data.csv`)
+    link.style.visibility = "hidden"
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }, [visibleColumns, filteredAndSortedData, websiteName])
+  
+  // Create touch handlers for buttons (after exportToCSV is defined)
+  const exportHandlers = useMobileClick(exportToCSV)
+  const prevPageHandlers = useMobileClick(() => {
+    if (currentPage > 1) {
+      setCurrentPage(prev => Math.max(1, prev - 1))
+    }
+  })
+  const nextPageHandlers = useMobileClick(() => {
+    if (currentPage < totalPages) {
+      setCurrentPage(prev => Math.min(totalPages, prev + 1))
+    }
+  })
 
   const handleSort = (key) => {
     setSortConfig((current) => {
@@ -255,23 +328,6 @@ export function DataTable({ sheetID, websiteName, dateRange }) {
     )
   }
 
-  const exportToCSV = () => {
-    const headers = visibleColumns.join(",")
-    const rows = filteredAndSortedData.map((row) =>
-      visibleColumns.map((col) => `"${row[col]}"`).join(",")
-    )
-    const csv = [headers, ...rows].join("\n")
-
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
-    const link = document.createElement("a")
-    const url = URL.createObjectURL(blob)
-    link.setAttribute("href", url)
-    link.setAttribute("download", `${websiteName}_${new Date().toISOString().split('T')[0]}.csv`)
-    link.style.visibility = "hidden"
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-  }
 
   const formatCellValue = (value, header) => {
     const numValue = convertToNumber(value)
@@ -314,6 +370,34 @@ export function DataTable({ sheetID, websiteName, dateRange }) {
         </CardHeader>
         <CardContent>
           <p className="text-destructive">{error}</p>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  // Safety check - ensure we have data to display
+  if (!tableData || tableData.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>{websiteName} - Detailed Data</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground">No data available</p>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  // Safety check - ensure we have visible columns
+  if (!visibleColumns || visibleColumns.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>{websiteName} - Detailed Data</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground">Loading columns...</p>
         </CardContent>
       </Card>
     )
@@ -383,11 +467,7 @@ export function DataTable({ sheetID, websiteName, dateRange }) {
               </DropdownMenuContent>
             </DropdownMenu>
             <Button 
-              onClick={exportToCSV} 
-              onTouchStart={(e) => {
-                e.preventDefault()
-                exportToCSV()
-              }}
+              {...exportHandlers}
               className="gap-1 sm:gap-2 h-9 px-2 sm:px-4 text-xs sm:text-sm touch-manipulation"
             >
               <Download className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -403,18 +483,11 @@ export function DataTable({ sheetID, websiteName, dateRange }) {
               <TableRow>
                 {visibleColumns.map((column) => (
                   <TableHead key={column} className="whitespace-nowrap">
-                    <Button
-                      variant="ghost"
-                      onClick={() => handleSort(column)}
-                      onTouchStart={(e) => {
-                        e.preventDefault()
-                        handleSort(column)
-                      }}
-                      className="hover:bg-transparent font-semibold text-xs sm:text-sm h-8 sm:h-auto px-2 sm:px-4 touch-manipulation"
-                    >
-                      <span className="truncate">{column}</span>
-                      {getSortIcon(column)}
-                    </Button>
+                    <SortButton
+                      column={column}
+                      handleSort={handleSort}
+                      getSortIcon={getSortIcon}
+                    />
                   </TableHead>
                 ))}
               </TableRow>
@@ -451,13 +524,7 @@ export function DataTable({ sheetID, websiteName, dateRange }) {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                onTouchStart={(e) => {
-                  if (currentPage > 1) {
-                    e.preventDefault()
-                    setCurrentPage(prev => Math.max(1, prev - 1))
-                  }
-                }}
+                {...prevPageHandlers}
                 disabled={currentPage === 1}
                 className="h-8 px-2 sm:px-3 text-xs touch-manipulation"
               >
@@ -470,13 +537,7 @@ export function DataTable({ sheetID, websiteName, dateRange }) {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                onTouchStart={(e) => {
-                  if (currentPage < totalPages) {
-                    e.preventDefault()
-                    setCurrentPage(prev => Math.min(totalPages, prev + 1))
-                  }
-                }}
+                {...nextPageHandlers}
                 disabled={currentPage === totalPages}
                 className="h-8 px-2 sm:px-3 text-xs touch-manipulation"
               >

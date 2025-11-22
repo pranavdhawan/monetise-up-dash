@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, memo } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { BarChart3, ComputerIcon, Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -11,34 +11,30 @@ export function DashboardSidebar({ sheets, selectedSheet, onSheetSelect, classNa
   const [isOpen, setIsOpen] = useState(false)
 
   const handleOpenSheet = useCallback(() => {
-    if (!isOpen) {
-      setIsOpen(true)
-    }
-  }, [isOpen])
+    setIsOpen(true)
+  }, [])
   
-  const handleOpenSheetClick = useMobileClick(handleOpenSheet, 300)
+  const touchHandlers = useMobileClick(handleOpenSheet)
 
-  const MobileMenuButton = memo(() => (
+  const MobileMenuButton = useCallback(() => (
     <Button
       variant="outline"
       size="icon"
-      onClick={handleOpenSheetClick}
+      {...touchHandlers}
       className="h-10 w-10 shrink-0 lg:hidden touch-manipulation pointer-events-auto relative z-50"
       aria-label="Open menu"
       type="button"
     >
       <Menu className="h-5 w-5" />
     </Button>
-  ))
-
-  MobileMenuButton.displayName = "MobileMenuButton"
+  ), [touchHandlers])
 
   // Expose the button through a callback if provided
   useEffect(() => {
     if (renderMobileButton) {
       renderMobileButton(MobileMenuButton)
     }
-  }, [renderMobileButton])
+  }, [renderMobileButton, touchHandlers])
 
   const SidebarContent = () => (
     <div className="flex h-full flex-col">
@@ -73,7 +69,7 @@ export function DashboardSidebar({ sheets, selectedSheet, onSheetSelect, classNa
                   setIsOpen(false)
                 }, [sheet, selectedSheet, onSheetSelect])
                 
-                const handleSheetClick = useMobileClick(handleSheetSelect, 200)
+                const touchHandlers = useMobileClick(handleSheetSelect)
                 
                 return (
                   <Button
@@ -83,11 +79,7 @@ export function DashboardSidebar({ sheets, selectedSheet, onSheetSelect, classNa
                       "w-full justify-start font-normal min-h-[44px] touch-manipulation",
                       selectedSheet === sheet && "bg-secondary"
                     )}
-                    onClick={handleSheetClick}
-                    onTouchStart={(e) => {
-                      e.preventDefault()
-                      handleSheetSelect()
-                    }}
+                    {...touchHandlers}
                   >
                     {/* <ComputerIcon className="mr-2 h-4 w-4" /> */}
                     <span className="text-1xl font-bold">🖥️</span>

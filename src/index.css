@@ -68,33 +68,22 @@
   }
 }
 
-/* Mobile touch optimizations */
+/* Mobile touch optimizations - SIMPLE AND DIRECT */
 @layer utilities {
   .touch-manipulation {
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
-    user-select: none;
-    -webkit-user-select: none;
   }
   
-  /* Disable hover effects on touch devices - THIS IS THE KEY FIX */
-  /* On touch devices, first tap triggers hover, second tap clicks - this prevents that */
+  /* COMPLETELY DISABLE HOVER AND FOCUS ON TOUCH DEVICES */
   @media (hover: none) and (pointer: coarse) {
-    /* Disable ALL hover effects on touch devices - comprehensive fix */
+    /* Disable ALL hover states - prevents first tap from showing hover */
     *:hover,
     button:hover,
     [role="button"]:hover,
     a:hover,
     .btn:hover,
-    [type="button"]:hover,
-    summary:hover,
-    [data-radix-collection-item]:hover,
-    [data-radix-dropdown-menu-item]:hover,
-    [data-radix-dropdown-menu-trigger]:hover,
-    li:hover,
-    tr:hover,
-    td:hover,
-    th:hover {
+    [type="button"]:hover {
       background-color: inherit !important;
       background-image: inherit !important;
       color: inherit !important;
@@ -103,69 +92,50 @@
       text-decoration: inherit !important;
       border-color: inherit !important;
       box-shadow: inherit !important;
+      outline: inherit !important;
     }
     
-    /* Disable focus states that trigger on touch */
+    /* Disable ALL focus states - prevents first tap from showing focus */
     *:focus,
+    *:focus-visible,
+    *:focus-within,
     button:focus,
-    [role="button"]:focus {
+    button:focus-visible,
+    [role="button"]:focus,
+    [role="button"]:focus-visible {
       outline: none !important;
-    }
-    
-    /* Specifically target button variants */
-    button.bg-primary:hover {
-      background-color: hsl(var(--primary)) !important;
-    }
-    button.bg-secondary:hover {
-      background-color: hsl(var(--secondary)) !important;
-    }
-    button.bg-destructive:hover {
-      background-color: hsl(var(--destructive)) !important;
-    }
-    
-    /* Disable SCSS hover styles */
-    .sidebar li:hover,
-    .tableContainer tbody tr:hover,
-    .app.dark .sidebar ul li:hover {
+      box-shadow: none !important;
+      border-color: inherit !important;
       background-color: inherit !important;
+    }
+    
+    /* Disable active states that might show on touch */
+    *:active,
+    button:active,
+    [role="button"]:active {
+      transform: none !important;
+      background-color: inherit !important;
+    }
+    
+    /* Force no pointer events on hover/focus for buttons */
+    button:hover,
+    button:focus,
+    button:focus-visible,
+    button:active {
+      pointer-events: auto !important;
     }
   }
   
-  /* Prevent double-tap zoom and ensure single tap works */
+  /* Mobile-specific optimizations */
   @media (max-width: 768px) {
     button, 
     [role="button"],
-    .btn,
+    a,
     [type="button"],
     summary {
       touch-action: manipulation;
-      pointer-events: auto;
-      cursor: pointer;
       -webkit-tap-highlight-color: transparent;
       -webkit-touch-callout: none;
-    }
-    
-    /* Prevent 300ms delay on touch */
-    * {
-      -webkit-overflow-scrolling: touch;
-      -webkit-tap-highlight-color: transparent;
-    }
-    
-    /* Optimize rendering for large lists */
-    details summary {
-      pointer-events: auto;
-      cursor: pointer;
-      touch-action: manipulation;
-    }
-    
-    /* Ensure buttons are clickable even during heavy operations */
-    button:not(:disabled) {
-      will-change: transform;
-    }
-    
-    /* Prevent double-tap zoom on interactive elements */
-    a, button, input, select, textarea, [onclick], [role="button"] {
-      touch-action: manipulation;
     }
   }
 }

@@ -23,8 +23,18 @@ export default function Dashboard() {
   const [MobileMenuButton, setMobileMenuButton] = useState(null)
   const [isPending, startTransition] = useTransition()
   
-  const handleSetViewChart = useMobileClick(() => setView("chart"), 300)
-  const handleSetViewTable = useMobileClick(() => setView("table"), 300)
+  const handleSetChart = useCallback(() => {
+    console.log("Setting view to chart")
+    setView("chart")
+  }, [])
+  
+  const handleSetTable = useCallback(() => {
+    console.log("Setting view to table")
+    setView("table")
+  }, [])
+  
+  const chartTouchHandlers = useMobileClick(handleSetChart)
+  const tableTouchHandlers = useMobileClick(handleSetTable)
 
   const { isSignedIn, user, isLoaded } = useUser()
   const key = import.meta.env.VITE_CLIENT_KEY
@@ -157,7 +167,7 @@ export default function Dashboard() {
                 <Button
                   variant={view === "chart" ? "secondary" : "ghost"}
                   size="sm"
-                  onClick={handleSetViewChart}
+                  {...chartTouchHandlers}
                   className="gap-2 touch-manipulation"
                 >
                   <BarChart3 className="h-4 w-4" />
@@ -166,7 +176,7 @@ export default function Dashboard() {
                 <Button
                   variant={view === "table" ? "secondary" : "ghost"}
                   size="sm"
-                  onClick={handleSetViewTable}
+                  {...tableTouchHandlers}
                   className="gap-2 touch-manipulation"
                 >
                   <Table2 className="h-4 w-4" />
@@ -212,7 +222,7 @@ export default function Dashboard() {
                     <Button
                       variant={view === "chart" ? "default" : "outline"}
                       size="sm"
-                      onClick={handleSetViewChart}
+                      {...chartTouchHandlers}
                       className="flex-1 gap-2 text-xs min-h-[44px] touch-manipulation"
                     >
                       <BarChart3 className="h-4 w-4" />
@@ -221,7 +231,7 @@ export default function Dashboard() {
                     <Button
                       variant={view === "table" ? "default" : "outline"}
                       size="sm"
-                      onClick={handleSetViewTable}
+                      {...tableTouchHandlers}
                       className="flex-1 gap-2 text-xs min-h-[44px] touch-manipulation"
                     >
                       <Table2 className="h-4 w-4" />

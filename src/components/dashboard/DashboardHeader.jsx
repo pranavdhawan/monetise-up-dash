@@ -31,7 +31,7 @@ export function DashboardHeader() {
     signOut()
   }, [signOut])
   
-  const handleLogoutClick = useMobileClick(handleLogout, 300)
+  const logoutTouchHandlers = useMobileClick(handleLogout)
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -79,7 +79,7 @@ export function DashboardHeader() {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleLogoutClick} className="cursor-pointer text-destructive touch-manipulation">
+              <DropdownMenuItem {...logoutTouchHandlers} className="cursor-pointer text-destructive touch-manipulation">
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Log out</span>
               </DropdownMenuItem>

@@ -1,71 +1,70 @@
-import { useRef, useCallback, useEffect } from 'react'
+import { useRef, useCallback } from 'react'
 
 /**
- * Custom hook to prevent double-click/double-tap issues on mobile
- * Handles both touch and click events properly
+ * Hook that handles both touch (mobile) and click (desktop) events
+ * - On mobile: touchStart fires immediately, prevents hover/focus, blocks subsequent click
+ * - On desktop: touchStart never fires, click works normally with hover effects
  */
-export function useMobileClick(handler, delay = 200) {
-  const lastClickTime = useRef(0)
-  const isProcessing = useRef(false)
+export function useMobileClick(handler) {
   const touchHandled = useRef(false)
-  const elementRef = useRef(null)
+  const handlerRef = useRef(handler)
+  const lastTouchTime = useRef(0)
+  
+  // Keep handler ref updated
+  handlerRef.current = handler
 
-  const handleEvent = useCallback((e) => {
+  const handleTouchStart = useCallback((e) => {
+    // This only fires on touch devices (mobile/tablet)
+    // Desktop won't trigger this, so desktop clicks work normally
     const now = Date.now()
-    const timeSinceLastClick = now - lastClickTime.current
-
-    // If clicked too soon or already processing, ignore
-    if (timeSinceLastClick < delay || isProcessing.current) {
-      if (e) {
-        e.preventDefault()
-        e.stopPropagation()
-      }
-      return
-    }
-
-    // Mark as processing
-    isProcessing.current = true
-    lastClickTime.current = now
-
-    // Prevent default and stop propagation
-    if (e) {
+    
+    // Prevent rapid double-taps
+    if (now - lastTouchTime.current < 100) {
       e.preventDefault()
       e.stopPropagation()
-    }
-
-    // Execute handler immediately
-    if (handler) {
-      handler(e)
-    }
-
-    // Reset processing flag after delay
-    setTimeout(() => {
-      isProcessing.current = false
-      touchHandled.current = false
-    }, delay)
-  }, [handler, delay])
-
-  // Return handler that works for both touch and click
-  return useCallback((e) => {
-    // For touch events, handle immediately
-    if (e.type === 'touchstart' || e.type === 'touchend') {
-      touchHandled.current = true
-      handleEvent(e)
       return
     }
     
-    // For click events, only handle if touch didn't already handle it
-    if (e.type === 'click') {
-      // Small delay to check if touch was handled
-      setTimeout(() => {
-        if (!touchHandled.current) {
-          handleEvent(e)
-        }
-        touchHandled.current = false
-      }, 50)
-    } else {
-      handleEvent(e)
+    lastTouchTime.current = now
+    
+    // Mark that touch was handled IMMEDIATELY
+    touchHandled.current = true
+    
+    // Aggressively prevent all default behaviors
+    e.preventDefault()
+    e.stopPropagation()
+    e.stopImmediatePropagation()
+    
+    // Execute handler IMMEDIATELY - no delay
+    if (handlerRef.current) {
+      handlerRef.current(e)
     }
-  }, [handleEvent])
-}
+    
+    // Reset after delay
+    setTimeout(() => {
+      touchHandled.current = false
+    }, 500)
+  }, [])
 
+  const handleClick = useCallback((e) => {
+    // On mobile: if touch already handled it, ignore click
+    // On desktop: touchHandled is always false, so click works normally
+    if (touchHandled.current) {
+      e.preventDefault()
+      e.stopPropagation()
+      e.stopImmediatePropagation()
+      return false
+    }
+    
+    // Desktop: normal click behavior with hover effects
+    // Mobile: this won't fire if touchStart already handled it
+    if (handlerRef.current) {
+      handlerRef.current(e)
+    }
+  }, [])
+
+  return {
+    onTouchStart: handleTouchStart,
+    onClick: handleClick
+  }
+}

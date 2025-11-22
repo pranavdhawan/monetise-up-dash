@@ -7,19 +7,14 @@ import { useMobileClick } from "@/hooks/use-mobile-click"
 
 // Preset button component to properly use hooks
 function PresetButton({ preset, selectedPreset, onPresetClick }) {
-  const handleClick = useMobileClick(() => onPresetClick(preset), 200)
-  const handlePreset = () => onPresetClick(preset)
+  const touchHandlers = useMobileClick(() => onPresetClick(preset))
   
   return (
     <Button
       variant={selectedPreset === preset.value ? "default" : "outline"}
       size="sm"
       className="justify-start text-xs sm:text-sm min-h-[44px] touch-manipulation"
-      onClick={handleClick}
-      onTouchStart={(e) => {
-        e.preventDefault()
-        handlePreset()
-      }}
+      {...touchHandlers}
     >
       {preset.label}
     </Button>
@@ -150,7 +145,7 @@ export function DateFilter({ onDateRangeChange }) {
     setSelectedPreset("all")
   }, [])
   
-  const handleClearDatesClick = useMobileClick(handleClearDates, 300)
+  const clearTouchHandlers = useMobileClick(handleClearDates)
 
   // Format date for input (YYYY-MM-DD)
   const formatDateForInput = (date) => {
@@ -210,7 +205,7 @@ export function DateFilter({ onDateRangeChange }) {
           <Button
             variant="ghost"
             size="sm"
-            onClick={handleClearDatesClick}
+            {...clearTouchHandlers}
             className="w-full text-xs sm:text-sm min-h-[44px] touch-manipulation"
           >
             Clear Dates
