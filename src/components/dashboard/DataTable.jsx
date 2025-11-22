@@ -51,12 +51,41 @@ export function DataTable({ sheetID, websiteName, dateRange }) {
   const [isPending, startTransition] = useTransition()
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("")
   
-  // Cache parsed dates to avoid repeated parsing
+  // Cache parsed dates to avoid repeated parsing and handle multiple formats
   const tableDataWithParsedDates = useMemo(() => {
     return tableData.map(item => {
       if (!item.Date) return { ...item, parsedDate: null }
-      const dateStr = item.Date.split('/').reverse().join('/')
-      return { ...item, parsedDate: new Date(dateStr) }
+      
+      let parsedDate = null
+      const dateStr = String(item.Date).trim()
+      
+      // Try different date formats
+      // Format 1: DD/MM/YYYY or DD-MM-YYYY (most common from Google Sheets)
+      if (dateStr.includes('/') || dateStr.includes('-')) {
+        const parts = dateStr.split(/[\/\-]/)
+        if (parts.length === 3) {
+          // Assume DD/MM/YYYY format
+          const day = parseInt(parts[0], 10)
+          const month = parseInt(parts[1], 10) - 1 // Month is 0-indexed
+          const year = parseInt(parts[2], 10)
+          if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
+            parsedDate = new Date(year, month, day)
+          }
+        }
+      }
+      
+      // Format 2: Try direct Date parsing
+      if (!parsedDate || isNaN(parsedDate.getTime())) {
+        parsedDate = new Date(dateStr)
+      }
+      
+      // If still invalid, try ISO format conversion
+      if (isNaN(parsedDate.getTime()) && dateStr.includes('/')) {
+        const isoStr = dateStr.replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$2-$1')
+        parsedDate = new Date(isoStr)
+      }
+      
+      return { ...item, parsedDate: (parsedDate && !isNaN(parsedDate.getTime())) ? parsedDate : null }
     })
   }, [tableData])
 
@@ -124,10 +153,24 @@ export function DataTable({ sheetID, websiteName, dateRange }) {
     let data = [...tableDataWithParsedDates]
 
     // Apply date range filter (using cached parsed dates)
-    if (dateRange?.from && dateRange?.to) {
+    if (dateRange && dateRange.from && dateRange.to) {
+      // Create date objects and normalize to start/end of day
+      const rangeStart = new Date(dateRange.from)
+      rangeStart.setHours(0, 0, 0, 0)
+      const rangeStartTime = rangeStart.getTime()
+      
+      const rangeEnd = new Date(dateRange.to)
+      rangeEnd.setHours(23, 59, 59, 999)
+      const rangeEndTime = rangeEnd.getTime()
+      
       data = data.filter((item) => {
-        if (!item.parsedDate) return false
-        return item.parsedDate >= dateRange.from && item.parsedDate <= dateRange.to
+        if (!item.parsedDate || isNaN(item.parsedDate.getTime())) return false
+        
+        // Get timestamp for comparison
+        const itemTime = item.parsedDate.getTime()
+        
+        // Check if item date falls within range
+        return itemTime >= rangeStartTime && itemTime <= rangeEndTime
       })
     }
 

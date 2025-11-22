@@ -61,6 +61,17 @@ export function RevenueChart({ sheetID, websiteName, dateRange }) {
 
   const key = import.meta.env.VITE_CLIENT_KEY
 
+  // Debug: Log date range and filtered data
+  useEffect(() => {
+    if (dateRange) {
+      console.log('RevenueChart - Date Range:', {
+        from: dateRange.from?.toLocaleDateString(),
+        to: dateRange.to?.toLocaleDateString(),
+        raw: dateRange
+      })
+    }
+  }, [dateRange])
+
   useEffect(() => {
     const getData = async () => {
       if (!sheetID || !websiteName || !key) {
@@ -144,23 +155,78 @@ export function RevenueChart({ sheetID, websiteName, dateRange }) {
     getData()
   }, [sheetID, websiteName, key])
 
-  // Optimize date parsing - cache parsed dates
+  // Optimize date parsing - cache parsed dates and handle multiple formats
   const chartDataWithParsedDates = useMemo(() => {
     return chartData.map(item => {
       if (!item.Date) return { ...item, parsedDate: null }
-      // Cache parsed date to avoid repeated parsing
-      const dateStr = item.Date.split('/').reverse().join('/')
-      return { ...item, parsedDate: new Date(dateStr) }
+      
+      let parsedDate = null
+      const dateStr = String(item.Date).trim()
+      
+      // Try different date formats
+      // Format 1: DD/MM/YYYY or DD-MM-YYYY (most common from Google Sheets)
+      if (dateStr.includes('/') || dateStr.includes('-')) {
+        const parts = dateStr.split(/[\/\-]/)
+        if (parts.length === 3) {
+          // Assume DD/MM/YYYY format
+          const day = parseInt(parts[0], 10)
+          const month = parseInt(parts[1], 10) - 1 // Month is 0-indexed
+          const year = parseInt(parts[2], 10)
+          if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
+            parsedDate = new Date(year, month, day)
+          }
+        }
+      }
+      
+      // Format 2: Try direct Date parsing
+      if (!parsedDate || isNaN(parsedDate.getTime())) {
+        parsedDate = new Date(dateStr)
+      }
+      
+      // If still invalid, try ISO format conversion
+      if (isNaN(parsedDate.getTime()) && dateStr.includes('/')) {
+        const isoStr = dateStr.replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$2-$1')
+        parsedDate = new Date(isoStr)
+      }
+      
+      return { ...item, parsedDate: (parsedDate && !isNaN(parsedDate.getTime())) ? parsedDate : null }
     })
   }, [chartData])
 
   const filteredData = useMemo(() => {
-    if (!dateRange?.from || !dateRange?.to) return chartDataWithParsedDates
+    // If no date range, return all data
+    if (!dateRange || !dateRange.from || !dateRange.to) {
+      console.log('RevenueChart - No date range, showing all data:', chartDataWithParsedDates.length, 'items')
+      return chartDataWithParsedDates
+    }
 
-    return chartDataWithParsedDates.filter((item) => {
-      if (!item.parsedDate) return false
-      return item.parsedDate >= dateRange.from && item.parsedDate <= dateRange.to
+    // Create date objects and normalize to start/end of day
+    const rangeStart = new Date(dateRange.from)
+    rangeStart.setHours(0, 0, 0, 0)
+    const rangeStartTime = rangeStart.getTime()
+    
+    const rangeEnd = new Date(dateRange.to)
+    rangeEnd.setHours(23, 59, 59, 999)
+    const rangeEndTime = rangeEnd.getTime()
+
+    console.log('RevenueChart - Filtering with range:', {
+      start: rangeStart.toLocaleDateString(),
+      end: rangeEnd.toLocaleDateString(),
+      totalItems: chartDataWithParsedDates.length
     })
+
+    const filtered = chartDataWithParsedDates.filter((item) => {
+      if (!item.parsedDate || isNaN(item.parsedDate.getTime())) return false
+      
+      // Get timestamp for comparison
+      const itemTime = item.parsedDate.getTime()
+      
+      // Check if item date falls within range
+      return itemTime >= rangeStartTime && itemTime <= rangeEndTime
+    })
+
+    console.log('RevenueChart - Filtered result:', filtered.length, 'items')
+    return filtered
   }, [chartDataWithParsedDates, dateRange])
 
   // Sample data for mobile to improve performance (show max 50 points on mobile)

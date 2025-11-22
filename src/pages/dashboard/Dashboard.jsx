@@ -76,10 +76,15 @@ export default function Dashboard() {
   }, [sheetID, key])
 
   const handleDateRangeChange = useCallback((range) => {
-    // Use React.startTransition for non-urgent updates
-    startTransition(() => {
-      setDateRange(range)
-    })
+    // Update immediately for better responsiveness
+    if (range && range.from && range.to) {
+      setDateRange({
+        from: new Date(range.from),
+        to: new Date(range.to)
+      })
+    } else {
+      setDateRange(null)
+    }
   }, [])
 
   const handleSheetSelect = useCallback((sheet) => {
