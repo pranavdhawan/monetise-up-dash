@@ -80,14 +80,21 @@
   /* Disable hover effects on touch devices - THIS IS THE KEY FIX */
   /* On touch devices, first tap triggers hover, second tap clicks - this prevents that */
   @media (hover: none) and (pointer: coarse) {
-    /* Disable all hover effects on touch devices */
+    /* Disable ALL hover effects on touch devices - comprehensive fix */
+    *:hover,
     button:hover,
     [role="button"]:hover,
     a:hover,
     .btn:hover,
     [type="button"]:hover,
     summary:hover,
-    [data-radix-collection-item]:hover {
+    [data-radix-collection-item]:hover,
+    [data-radix-dropdown-menu-item]:hover,
+    [data-radix-dropdown-menu-trigger]:hover,
+    li:hover,
+    tr:hover,
+    td:hover,
+    th:hover {
       background-color: inherit !important;
       background-image: inherit !important;
       color: inherit !important;
@@ -95,6 +102,14 @@
       transform: inherit !important;
       text-decoration: inherit !important;
       border-color: inherit !important;
+      box-shadow: inherit !important;
+    }
+    
+    /* Disable focus states that trigger on touch */
+    *:focus,
+    button:focus,
+    [role="button"]:focus {
+      outline: none !important;
     }
     
     /* Specifically target button variants */
@@ -106,6 +121,13 @@
     }
     button.bg-destructive:hover {
       background-color: hsl(var(--destructive)) !important;
+    }
+    
+    /* Disable SCSS hover styles */
+    .sidebar li:hover,
+    .tableContainer tbody tr:hover,
+    .app.dark .sidebar ul li:hover {
+      background-color: inherit !important;
     }
   }
   

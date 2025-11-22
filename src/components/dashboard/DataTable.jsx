@@ -382,7 +382,14 @@ export function DataTable({ sheetID, websiteName, dateRange }) {
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button onClick={exportToCSV} className="gap-1 sm:gap-2 h-9 px-2 sm:px-4 text-xs sm:text-sm">
+            <Button 
+              onClick={exportToCSV} 
+              onTouchStart={(e) => {
+                e.preventDefault()
+                exportToCSV()
+              }}
+              className="gap-1 sm:gap-2 h-9 px-2 sm:px-4 text-xs sm:text-sm touch-manipulation"
+            >
               <Download className="h-3 w-3 sm:h-4 sm:w-4" />
               <span className="hidden sm:inline">Export</span>
             </Button>
@@ -399,7 +406,11 @@ export function DataTable({ sheetID, websiteName, dateRange }) {
                     <Button
                       variant="ghost"
                       onClick={() => handleSort(column)}
-                      className="hover:bg-transparent font-semibold text-xs sm:text-sm h-8 sm:h-auto px-2 sm:px-4"
+                      onTouchStart={(e) => {
+                        e.preventDefault()
+                        handleSort(column)
+                      }}
+                      className="hover:bg-transparent font-semibold text-xs sm:text-sm h-8 sm:h-auto px-2 sm:px-4 touch-manipulation"
                     >
                       <span className="truncate">{column}</span>
                       {getSortIcon(column)}
@@ -441,8 +452,14 @@ export function DataTable({ sheetID, websiteName, dateRange }) {
                 variant="outline"
                 size="sm"
                 onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                onTouchStart={(e) => {
+                  if (currentPage > 1) {
+                    e.preventDefault()
+                    setCurrentPage(prev => Math.max(1, prev - 1))
+                  }
+                }}
                 disabled={currentPage === 1}
-                className="h-8 px-2 sm:px-3 text-xs"
+                className="h-8 px-2 sm:px-3 text-xs touch-manipulation"
               >
                 <ChevronLeft className="h-3 w-3 sm:h-4 sm:w-4" />
                 <span className="hidden sm:inline">Previous</span>
@@ -454,8 +471,14 @@ export function DataTable({ sheetID, websiteName, dateRange }) {
                 variant="outline"
                 size="sm"
                 onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                onTouchStart={(e) => {
+                  if (currentPage < totalPages) {
+                    e.preventDefault()
+                    setCurrentPage(prev => Math.min(totalPages, prev + 1))
+                  }
+                }}
                 disabled={currentPage === totalPages}
-                className="h-8 px-2 sm:px-3 text-xs"
+                className="h-8 px-2 sm:px-3 text-xs touch-manipulation"
               >
                 <span className="hidden sm:inline">Next</span>
                 <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />

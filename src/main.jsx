@@ -10,17 +10,24 @@ if (!PUBLISHABLE_KEY) {
   throw new Error("Missing Publishable Key")
 }
 
-// Global mobile touch fix - simplified to avoid conflicts
+// Global mobile touch fix - completely removed to avoid conflicts
+// Component-level handlers now manage all touch events
 if (typeof window !== 'undefined') {
-  // Only prevent double-tap zoom, let component handlers manage clicks
+  // Only prevent double-tap zoom on non-interactive elements
   let lastTouchEnd = 0
   document.addEventListener('touchend', function (event) {
-    const now = Date.now()
-    // Only prevent if it's a very rapid double-tap (within 100ms)
-    if (now - lastTouchEnd <= 100) {
-      event.preventDefault()
+    // Only prevent on non-interactive elements (body, divs without handlers)
+    const target = event.target
+    const isInteractive = target.closest('button, a, [role="button"], [onclick], input, select, textarea')
+    
+    if (!isInteractive) {
+      const now = Date.now()
+      // Only prevent if it's a very rapid double-tap (within 100ms)
+      if (now - lastTouchEnd <= 100) {
+        event.preventDefault()
+      }
+      lastTouchEnd = now
     }
-    lastTouchEnd = now
   }, { passive: false })
 }
 
