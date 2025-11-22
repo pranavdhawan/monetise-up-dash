@@ -7,7 +7,8 @@ import { useMobileClick } from "@/hooks/use-mobile-click"
 
 // Preset button component to properly use hooks
 function PresetButton({ preset, selectedPreset, onPresetClick }) {
-  const handleClick = useMobileClick(() => onPresetClick(preset), 300)
+  const handleClick = useMobileClick(() => onPresetClick(preset), 200)
+  const handlePreset = () => onPresetClick(preset)
   
   return (
     <Button
@@ -15,6 +16,10 @@ function PresetButton({ preset, selectedPreset, onPresetClick }) {
       size="sm"
       className="justify-start text-xs sm:text-sm min-h-[44px] touch-manipulation"
       onClick={handleClick}
+      onTouchStart={(e) => {
+        e.preventDefault()
+        handlePreset()
+      }}
     >
       {preset.label}
     </Button>

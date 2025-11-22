@@ -73,7 +73,7 @@ export function DashboardSidebar({ sheets, selectedSheet, onSheetSelect, classNa
                   setIsOpen(false)
                 }, [sheet, selectedSheet, onSheetSelect])
                 
-                const handleSheetClick = useMobileClick(handleSheetSelect, 300)
+                const handleSheetClick = useMobileClick(handleSheetSelect, 200)
                 
                 return (
                   <Button
@@ -84,6 +84,10 @@ export function DashboardSidebar({ sheets, selectedSheet, onSheetSelect, classNa
                       selectedSheet === sheet && "bg-secondary"
                     )}
                     onClick={handleSheetClick}
+                    onTouchStart={(e) => {
+                      e.preventDefault()
+                      handleSheetSelect()
+                    }}
                   >
                     {/* <ComputerIcon className="mr-2 h-4 w-4" /> */}
                     <span className="text-1xl font-bold">🖥️</span>

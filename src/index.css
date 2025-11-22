@@ -77,6 +77,38 @@
     -webkit-user-select: none;
   }
   
+  /* Disable hover effects on touch devices - THIS IS THE KEY FIX */
+  /* On touch devices, first tap triggers hover, second tap clicks - this prevents that */
+  @media (hover: none) and (pointer: coarse) {
+    /* Disable all hover effects on touch devices */
+    button:hover,
+    [role="button"]:hover,
+    a:hover,
+    .btn:hover,
+    [type="button"]:hover,
+    summary:hover,
+    [data-radix-collection-item]:hover {
+      background-color: inherit !important;
+      background-image: inherit !important;
+      color: inherit !important;
+      opacity: inherit !important;
+      transform: inherit !important;
+      text-decoration: inherit !important;
+      border-color: inherit !important;
+    }
+    
+    /* Specifically target button variants */
+    button.bg-primary:hover {
+      background-color: hsl(var(--primary)) !important;
+    }
+    button.bg-secondary:hover {
+      background-color: hsl(var(--secondary)) !important;
+    }
+    button.bg-destructive:hover {
+      background-color: hsl(var(--destructive)) !important;
+    }
+  }
+  
   /* Prevent double-tap zoom and ensure single tap works */
   @media (max-width: 768px) {
     button, 
