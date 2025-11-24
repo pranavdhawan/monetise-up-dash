@@ -5,7 +5,6 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Sheet, SheetContent, SheetTitle, SheetDescription } from "@/components/ui/sheet"
 import { cn } from "@/lib/utils"
 import logo from "@/assets/logoo.png"
-import { useMobileClick } from "@/hooks/use-mobile-click"
 
 export function DashboardSidebar({ sheets, selectedSheet, onSheetSelect, className, renderMobileButton }) {
   const [isOpen, setIsOpen] = useState(false)
@@ -13,28 +12,26 @@ export function DashboardSidebar({ sheets, selectedSheet, onSheetSelect, classNa
   const handleOpenSheet = useCallback(() => {
     setIsOpen(true)
   }, [])
-  
-  const touchHandlers = useMobileClick(handleOpenSheet)
 
   const MobileMenuButton = useCallback(() => (
     <Button
       variant="outline"
       size="icon"
-      {...touchHandlers}
-      className="h-10 w-10 shrink-0 lg:hidden touch-manipulation pointer-events-auto relative z-50"
+      onClick={handleOpenSheet}
+      className="h-10 w-10 shrink-0 lg:hidden pointer-events-auto relative z-50"
       aria-label="Open menu"
       type="button"
     >
       <Menu className="h-5 w-5" />
     </Button>
-  ), [touchHandlers])
+  ), [handleOpenSheet])
 
   // Expose the button through a callback if provided
   useEffect(() => {
     if (renderMobileButton) {
       renderMobileButton(MobileMenuButton)
     }
-  }, [renderMobileButton, touchHandlers])
+  }, [renderMobileButton, MobileMenuButton])
 
   const SidebarContent = () => (
     <div className="flex h-full flex-col">
@@ -62,26 +59,23 @@ export function DashboardSidebar({ sheets, selectedSheet, onSheetSelect, classNa
               </div>
             ) : (
               sheets.map((sheet) => {
-                const handleSheetSelect = useCallback(() => {
+                const handleClick = () => {
                   if (selectedSheet !== sheet) {
                     onSheetSelect(sheet)
                   }
                   setIsOpen(false)
-                }, [sheet, selectedSheet, onSheetSelect])
-                
-                const touchHandlers = useMobileClick(handleSheetSelect)
+                }
                 
                 return (
                   <Button
                     key={sheet}
                     variant={selectedSheet === sheet ? "secondary" : "ghost"}
                     className={cn(
-                      "w-full justify-start font-normal min-h-[44px] touch-manipulation",
+                      "w-full justify-start font-normal min-h-[44px]",
                       selectedSheet === sheet && "bg-secondary"
                     )}
-                    {...touchHandlers}
+                    onClick={handleClick}
                   >
-                    {/* <ComputerIcon className="mr-2 h-4 w-4" /> */}
                     <span className="text-1xl font-bold">🖥️</span>
                     <span className="truncate">{sheet}</span>
                   </Button>

@@ -57,99 +57,13 @@
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
   }
-}
 
-@layer base {
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
   }
 }
 
-/* Mobile touch optimizations - SIMPLE AND DIRECT */
-@layer utilities {
-  .touch-manipulation {
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
-  }
-  
-  /* COMPLETELY DISABLE HOVER AND FOCUS ON TOUCH DEVICES */
-  @media (hover: none) and (pointer: coarse) {
-    /* Disable ALL hover states - prevents first tap from showing hover */
-    *:hover,
-    button:hover,
-    [role="button"]:hover,
-    a:hover,
-    .btn:hover,
-    [type="button"]:hover {
-      background-color: inherit !important;
-      background-image: inherit !important;
-      color: inherit !important;
-      opacity: inherit !important;
-      transform: inherit !important;
-      text-decoration: inherit !important;
-      border-color: inherit !important;
-      box-shadow: inherit !important;
-      outline: inherit !important;
-    }
-    
-    /* Disable ALL focus states - prevents first tap from showing focus */
-    *:focus,
-    *:focus-visible,
-    *:focus-within,
-    button:focus,
-    button:focus-visible,
-    [role="button"]:focus,
-    [role="button"]:focus-visible {
-      outline: none !important;
-      box-shadow: none !important;
-      border-color: inherit !important;
-      background-color: inherit !important;
-    }
-    
-    /* Disable active states that might show on touch */
-    *:active,
-    button:active,
-    [role="button"]:active {
-      transform: none !important;
-      background-color: inherit !important;
-    }
-    
-    /* Force no pointer events on hover/focus for buttons */
-    button:hover,
-    button:focus,
-    button:focus-visible,
-    button:active {
-      pointer-events: auto !important;
-    }
-  }
-  
-  /* Mobile-specific optimizations */
-  @media (max-width: 768px) {
-    button, 
-    [role="button"],
-    a,
-    [type="button"],
-    summary {
-      touch-action: manipulation;
-      -webkit-tap-highlight-color: transparent;
-      -webkit-touch-callout: none;
-    }
-  }
-}
-
-/* Performance optimizations for large datasets */
-@layer base {
-  /* Use GPU acceleration for transforms */
-  .transform {
-    transform: translateZ(0);
-    -webkit-transform: translateZ(0);
-  }
-  
-  /* Contain paint for better performance */
-  [data-radix-scroll-area-viewport] {
-    contain: layout style paint;
-  }
-}

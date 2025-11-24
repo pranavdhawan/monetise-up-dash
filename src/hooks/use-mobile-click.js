@@ -15,11 +15,10 @@ export function useMobileClick(handler) {
 
   const handleTouchStart = useCallback((e) => {
     // This only fires on touch devices (mobile/tablet)
-    // Desktop won't trigger this, so desktop clicks work normally
     const now = Date.now()
     
-    // Prevent rapid double-taps
-    if (now - lastTouchTime.current < 100) {
+    // Prevent rapid double-taps (reduced from 100ms to 50ms for faster response)
+    if (now - lastTouchTime.current < 50) {
       e.preventDefault()
       e.stopPropagation()
       return
@@ -27,23 +26,21 @@ export function useMobileClick(handler) {
     
     lastTouchTime.current = now
     
-    // Mark that touch was handled IMMEDIATELY
+    // Mark that touch was handled
     touchHandled.current = true
     
-    // Aggressively prevent all default behaviors
+    // Prevent default to stop hover/focus, but don't stop propagation
     e.preventDefault()
-    e.stopPropagation()
-    e.stopImmediatePropagation()
     
-    // Execute handler IMMEDIATELY - no delay
+    // Execute handler immediately
     if (handlerRef.current) {
       handlerRef.current(e)
     }
     
-    // Reset after delay
+    // Reset after shorter delay for better responsiveness
     setTimeout(() => {
       touchHandled.current = false
-    }, 500)
+    }, 300)
   }, [])
 
   const handleClick = useCallback((e) => {
@@ -52,12 +49,10 @@ export function useMobileClick(handler) {
     if (touchHandled.current) {
       e.preventDefault()
       e.stopPropagation()
-      e.stopImmediatePropagation()
       return false
     }
     
-    // Desktop: normal click behavior with hover effects
-    // Mobile: this won't fire if touchStart already handled it
+    // Desktop: normal click behavior
     if (handlerRef.current) {
       handlerRef.current(e)
     }
