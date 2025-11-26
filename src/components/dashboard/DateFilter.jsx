@@ -43,6 +43,14 @@ export function DateFilter({ onDateRangeChange }) {
       getRange: () => null
     },
     {
+      label: "Today",
+      value: "today",
+      getRange: () => ({
+        from: startOfDay(new Date()),
+        to: endOfDay(new Date())
+      })
+    },
+    {
       label: "Yesterday",
       value: "yesterday",
       getRange: () => ({
@@ -216,7 +224,7 @@ export function DateFilter({ onDateRangeChange }) {
       {dateRange?.from ? (
         <div className="rounded-lg bg-muted p-2.5 sm:p-3 text-xs sm:text-sm">
           <p className="font-medium text-xs sm:text-sm">
-            {selectedPreset === "yesterday" ? "Yesterday" : "Selected Range"}
+            {selectedPreset === "today" ? "Today" : selectedPreset === "yesterday" ? "Yesterday" : "Selected Range"}
           </p>
           <p className="text-muted-foreground text-[10px] sm:text-xs">
             {format(dateRange.from, "MMM dd, yyyy")}
