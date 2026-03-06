@@ -239,31 +239,77 @@ export function RevenueChart({ sheetID, websiteName, dateRange }) {
     return filteredData.filter((_, index) => index % sampleRate === 0)
   }, [filteredData, isMobile])
 
-  // Stats showing ONLY yesterday's data
-  const yesterdayStats = useMemo(() => {
-    if (chartData.length === 0) return null
-
-    // Get yesterday's date in the format used in the data (DD/MM/YYYY)
-    const yesterday = new Date()
-    yesterday.setDate(yesterday.getDate() - 1)
-    const yesterdayStr = yesterday.toLocaleDateString('en-GB') // DD/MM/YYYY format
-
-    // Find yesterday's data row
-    const yesterdayData = chartData.find(item => item.Date === yesterdayStr)
-    
-    if (!yesterdayData) return null
-
-    const result = {}
-    
-    // Get all metrics
+  // Stats summary - dynamic based on selected date range
+  const summaryStats = useMemo(() => {
     const allMetrics = [...metrics.revenue, ...metrics.rates, ...metrics.volumes, ...metrics.others]
-    
-    allMetrics.forEach(metric => {
-      result[metric] = yesterdayData[metric] || 0
+    if (allMetrics.length === 0 || filteredData.length === 0) return null
+
+    let label = "Selected Range Performance"
+    let badge = ""
+    let mode = "range" // "single" | "range" | "all"
+
+    if (!dateRange || !dateRange.from || !dateRange.to) {
+      mode = "all"
+      label = "All Time Performance"
+      badge = "All data"
+    } else {
+      const from = new Date(dateRange.from)
+      const to = new Date(dateRange.to)
+
+      const sameDay = from.toDateString() === to.toDateString()
+
+      if (sameDay) {
+        mode = "single"
+
+        const today = new Date()
+        const yesterday = new Date()
+        yesterday.setDate(today.getDate() - 1)
+
+        if (from.toDateString() === today.toDateString()) {
+          label = "Today's Performance"
+        } else if (from.toDateString() === yesterday.toDateString()) {
+          label = "Yesterday's Performance"
+        } else {
+          label = "Daily Performance"
+        }
+
+        badge = from.toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric"
+        })
+      } else {
+        mode = "range"
+        const fromStr = from.toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric"
+        })
+        const toStr = to.toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric"
+        })
+        badge = `${fromStr} - ${toStr}`
+      }
+    }
+
+    const totals = {}
+    allMetrics.forEach((metric) => {
+      totals[metric] = 0
     })
 
-    return result
-  }, [chartData, metrics])
+    filteredData.forEach((item) => {
+      allMetrics.forEach((metric) => {
+        const value = item[metric]
+        if (typeof value === "number" && !isNaN(value)) {
+          totals[metric] += value
+        }
+      })
+    })
+
+    return { totals, label, badge, mode }
+  }, [metrics, filteredData, dateRange])
 
   const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316']
 
@@ -318,33 +364,36 @@ export function RevenueChart({ sheetID, websiteName, dateRange }) {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4 sm:space-y-6">
-        {/* Stats Summary - Always showing YESTERDAY's data */}
-        {yesterdayStats && (
+        {/* Dynamic Stats Summary based on selected date range */}
+        {summaryStats && (
           <div className="space-y-2">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-              <h3 className="text-sm font-semibold">Yesterday's Performance</h3>
+              <h3 className="text-sm font-semibold">{summaryStats.label}</h3>
               <Badge variant="secondary" className="w-fit">
-                {new Date(Date.now() - 86400000).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                {summaryStats.badge}
               </Badge>
             </div>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
               {[...metrics.revenue, ...metrics.volumes, ...metrics.rates].slice(0, 8).map((metric, idx) => (
                 <div key={metric} className="rounded-lg bg-muted p-3 sm:p-4 will-change-contents">
                   <p className="text-xs sm:text-sm font-medium text-muted-foreground truncate">{metric}</p>
-                  <p className="text-lg sm:text-2xl font-bold truncate" style={{ color: colors[idx % colors.length] }}>
+                  <p
+                    className="text-lg sm:text-2xl font-bold truncate"
+                    style={{ color: colors[idx % colors.length] }}
+                  >
                     {metrics.rates.includes(metric) || metrics.revenue.includes(metric)
-                      ? `$${yesterdayStats[metric].toFixed(2)}`
-                      : yesterdayStats[metric].toLocaleString()}
+                      ? `$${(summaryStats.totals[metric] || 0).toFixed(2)}`
+                      : (summaryStats.totals[metric] || 0).toLocaleString()}
                   </p>
                 </div>
               ))}
             </div>
           </div>
         )}
-        
-        {!yesterdayStats && (
+
+        {!summaryStats && (
           <div className="rounded-lg bg-muted p-4 text-center">
-            <p className="text-sm text-muted-foreground">No data available for yesterday</p>
+            <p className="text-sm text-muted-foreground">No data available for the selected range</p>
           </div>
         )}
 
