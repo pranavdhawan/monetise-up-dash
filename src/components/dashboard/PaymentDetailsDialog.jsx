@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 
 const PaymentDetailsDialog = ({ open, setOpen }) => {
+  const [individualName, setIndividualName] = useState("")
   const [bankAccountName, setBankAccountName] = useState("")
   const [bankAccountNumber, setBankAccountNumber] = useState("")
   const [swiftCode, setSwiftCode] = useState("")
@@ -30,6 +31,7 @@ const PaymentDetailsDialog = ({ open, setOpen }) => {
         "template_9vmc5xb",    // 🔥 replace
         {
           user_email: user?.emailAddresses?.[0]?.emailAddress,
+          individualName,
           bankAccountName,
           bankAccountNumber,
           swiftCode,
@@ -39,6 +41,7 @@ const PaymentDetailsDialog = ({ open, setOpen }) => {
       )
 
       // reset form
+      setIndividualName("")
       setBankAccountName("")
       setBankAccountNumber("")
       setSwiftCode("")
@@ -63,6 +66,12 @@ const PaymentDetailsDialog = ({ open, setOpen }) => {
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+
+          <div>
+            <Label>Individual/Company Name</Label>
+            <Input value={individualName} onChange={(e) => setIndividualName(e.target.value)} required />
+          </div>
+
           <div>
             <Label>Bank Account Name</Label>
             <Input value={bankAccountName} onChange={(e) => setBankAccountName(e.target.value)} required />
